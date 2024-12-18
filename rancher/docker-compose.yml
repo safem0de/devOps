@@ -1,0 +1,7 @@
+  rancher:
+    build:
+      context: ./rancher
+    container_name: rancher
+    ports:
+      - "8888:80"
+      - "8444:443"

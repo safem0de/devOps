@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  gitlab:
+    build:
+      context: ./gitlab
+    container_name: gitlab
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - gitlab-data:/var/opt/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-config:/etc/gitlab
+
+volumes:
+  gitlab-data:
+  gitlab-logs:
+  gitlab-config:

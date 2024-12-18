@@ -1,0 +1,2 @@
+FROM kong:latest
+EXPOSE 8000 8443 8001 8444
