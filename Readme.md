@@ -1,3 +1,20 @@
+### How to install Docker Desktop on a different drive (location) on Windows
+#### reference: https://stackoverflow.com/questions/75727062/how-to-install-docker-desktop-on-a-different-drive-location-on-windows
+
+- Don't install using double click on "Docker Desktop Installer.exe".
+- Open Windows Terminal as Administrator (right click on the Terminal icon and click on "Run as Administrator"). Make sure you're using Windows Terminal and not Powershell, as the commands are formatted differently (see the Documentation).
+- Go to the folder where "Docker Desktop Installer.exe" downloaded.
+
+```bash
+start /w "" "Docker Desktop Installer.exe" install -accept-license  --installation-dir=D:\\ProgramFiles\\Docker
+```
+
+Note: the installer does not create the "Docker" dir this way if you don't specify a directory after the driver letter. Make sure to write E:\Docker at minimum
+Note: the WSL, image etc still will be in %HOME%\AppData\Local\Docker. As noted in comments, you can change that too by adding: --wsl-default-data-root=E:\path\to\data\folder
+(for Windows 11, you might also check the another answer in this thread)
+
+Documentation: https://docs.docker.com/desktop/install/windows-install/#install-from-the-command-line
+
 ### folders structure
 ```bash
 DevOps-Lab/
@@ -83,7 +100,7 @@ docker exec -it gitlab /bin/bash
 ```
 
 ## 2. รีเซ็ตรหัสผ่านบัญชี Administrator
-เมื่ออยู่ใน container GitLab แล้ว ให้ใช้คำสั่ง gitlab-rails console เพื่อรีเซ็ตรหัสผ่านแอดมิน:
+### 2.1 เมื่ออยู่ใน container GitLab แล้ว ให้ใช้คำสั่ง gitlab-rails console เพื่อรีเซ็ตรหัสผ่านแอดมิน:
 
 ```bash
 gitlab-rails console
@@ -99,7 +116,7 @@ user.save!
 
 เปลี่ยน 'your_new_password' เป็นรหัสผ่านใหม่ที่คุณต้องการสำหรับบัญชี root (Administrator)
 
-## 3. เข้าสู่ระบบ GitLab ผ่าน Web Browser
+### 2.2 เข้าสู่ระบบ GitLab ผ่าน Web Browser
 http://localhost:8080
 - ใช้ username เป็น root
 - ใช้ password ที่คุณตั้งค่าใหม่ในขั้นตอนก่อนหน้า
@@ -107,16 +124,86 @@ http://localhost:8080
 ### Check your sign-up restrictions
 Your GitLab instance allows anyone to register for an account, which is a security risk on public-facing GitLab instances. You should deactivate new sign ups if public users aren't expected to register for an account.
 
-## 4.ปิดการสมัครสมาชิกใหม่ (Sign-Up) ใน GitLab เพื่อลดความเสี่ยงด้านความปลอดภัย
+### 2.3 ปิดการสมัครสมาชิกใหม่ (Sign-Up) ใน GitLab เพื่อลดความเสี่ยงด้านความปลอดภัย
 - ใช้บัญชี root หรือบัญชีแอดมินที่มีสิทธิ์สูงสุดเพื่อล็อกอินเข้า GitLab
 - ไปที่:
     - Menu > Admin Area (คลิก Avatar มุมขวาบน แล้วเลือก Admin)
     - เลือก Settings (การตั้งค่า) ในแถบด้านซ้ายมือ
 
-## 5.แก้ไข Sign-Up Restrictions
+### 2.4.แก้ไข Sign-Up Restrictions
 - Uncheck (ยกเลิกการเลือก) ตัวเลือก:
     - Sign-up enabled (เปิดการสมัครสมาชิกใหม่)
 - หลังจากยกเลิกเลือกแล้ว ผู้ใช้งานใหม่จะไม่สามารถสมัครสมาชิกได้เอง
 
-## 6. บันทึกการเปลี่ยนแปลง
+### 2.5. บันทึกการเปลี่ยนแปลง
 กด Save Changes (บันทึกการตั้งค่า)
+
+
+### 3. OpenSSL version 3
+Starting with GitLab 17.7, OpenSSL 3 will be used. All TLS connections require TLS 1.2 or higher. 
+Weaker ciphers are no longer supported. 
+Encryption must have at least of 112 bits of security. Learn more.
+
+### 3.1. ตรวจสอบ OpenSSL เวอร์ชันปัจจุบัน
+รันคำสั่งนี้บนเซิร์ฟเวอร์ที่ติดตั้ง GitLab:
+
+```bash
+openssl version
+```
+หากเป็นเวอร์ชันเก่ากว่า 3.0 จำเป็นต้องอัปเกรด
+
+### 3.2. อัปเกรด OpenSSL เป็นเวอร์ชัน 3
+เวอร์ชันของระบบปฏิบัติการ (Operating System)
+```bash
+cat /etc/os-release
+```
+```bash
+uname -a
+```
+
+บน Ubuntu/Debian:
+```bash
+sudo apt update
+sudo apt install openssl
+openssl version
+```
+
+บน CentOS/RHEL:
+```bash
+sudo yum update
+sudo yum install openssl
+openssl version
+```
+
+## การ Export Docker Image
+### 1. ใช้คำสั่ง docker save
+คำสั่งนี้จะสร้างไฟล์ .tar ที่สามารถแชร์หรือเก็บไว้ได้:
+
+```bash
+docker save -o <output-file>.tar <image-name>:<tag>
+```
+ตัวอย่าง:
+
+```bash
+docker save -o my-image.tar my-image:latest
+```
+
+my-image.tar: ชื่อไฟล์ที่ต้องการบันทึก
+my-image:latest: ชื่อและแท็กของ image ที่ต้องการ export
+
+## การ Import Docker Image
+### 1. ใช้คำสั่ง docker load
+เมื่อคุณมีไฟล์ .tar จากการ export แล้ว คุณสามารถนำเข้า image ในเครื่องอื่นได้:
+
+```bash
+docker load -i <input-file>.tar
+```
+ตัวอย่าง:
+```bash
+docker load -i my-image.tar
+```
+
+หลังจากนำเข้า Docker จะเพิ่ม image เข้าใน local image store คุณสามารถตรวจสอบได้ด้วย:
+```bash
+docker images
+```
