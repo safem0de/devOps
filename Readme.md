@@ -71,6 +71,9 @@ type nul > grafana/docker-compose.yml
 docker system prune
 ```
 
+docker builder prune --force
+
+
 ```bash
 docker --version
 docker-compose --version

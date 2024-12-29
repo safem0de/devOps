@@ -13,6 +13,14 @@ services:
       - gitlab-logs:/var/log/gitlab
       - gitlab-config:/etc/gitlab
 
+  rancher:
+    build:
+      context: ./rancher
+    container_name: rancher
+    ports:
+      - "8888:80"
+      - "8444:443"
+
 volumes:
   gitlab-data:
   gitlab-logs:
