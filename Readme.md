@@ -257,6 +257,9 @@ set DOCKER_HOST=npipe:////./pipe/docker_engine
 wsl -l -v
 ```
 ```bash
+wsl -d rancher-desktop data
+```
+```bash
 nerdctl compose up -d
 or
 nerdctl compose -f docker-compose.yml up -d
