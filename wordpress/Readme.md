@@ -1,6 +1,8 @@
 ### Edit upload size
 #### /usr/local/etc/php/php.ini-production
-
+```bash
+nerdctl exec -it wordpress /bin/bash
+```
 ```bash
 cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 ```
