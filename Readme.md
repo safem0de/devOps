@@ -70,10 +70,9 @@ type nul > grafana/docker-compose.yml
 ```bash
 docker system prune
 ```
-
+```bash
 docker builder prune --force
-
-
+```
 ```bash
 docker --version
 docker-compose --version
@@ -209,4 +208,56 @@ docker load -i my-image.tar
 หลังจากนำเข้า Docker จะเพิ่ม image เข้าใน local image store คุณสามารถตรวจสอบได้ด้วย:
 ```bash
 docker images
+```
+
+## Rancher Desktop
+#### reference : https://www.somkiat.cc/working-with-rancher-desktop/
+
+1. Enable Kubernetes
+- Kubernetes Version (v1.31.4 (stable,latest))
+2. dockerd (moby) ใช้ Docker API ซึ่งสามารถใช้งานร่วมกับ Docker CLI ได้ เช่นคำสั่ง docker ที่คุณคุ้นเคย
+สามารถทำงานร่วมกับเครื่องมืออื่น ๆ ที่ต้องการ Docker API เช่น Docker Compose และ k3d
+
+### วิธีตรวจสอบและตั้งค่า PATH ตรวจสอบว่าไฟล์ไบนารีอยู่ที่ไหน
+
+สำหรับ Rancher Desktop ติดตั้งบน Windows: ไบนารี เช่น nerdctl หรือ docker มักจะอยู่ในโฟลเดอร์ที่ Rancher Desktop ติดตั้ง 
+(เริ่มต้นคือ %LOCALAPPDATA%\Programs\Rancher Desktop\resources หรือโฟลเดอร์ที่ Rancher Desktop ใช้)
+
+win + R (Set path)
+```bash
+sysdm.cpl
+```
+บน Windows --> Command Prompt :
+```bash
+where rancher
+where kubectl
+where docker
+```
+บน macOS/Linux --> Terminal :
+```bash
+which rancher
+which kubectl
+which docker
+```
+check Kubernetes version
+```bash
+kubectl version --client
+```
+##### ถ้าเจอปัญหาบน Rancher Desktop
+error during connect: Get "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.47/version": open //./pipe/dockerDesktopLinuxEngine: 
+The system cannot find the file specified.
+
+run cmd
+```bash
+set DOCKER_HOST=npipe:////./pipe/docker_engine
+```
+
+ตรวจสอบสถานะ WSL และ Distribution:
+```bash
+wsl -l -v
+```
+```bash
+nerdctl compose up -d
+or
+nerdctl compose -f docker-compose.yml up -d
 ```
