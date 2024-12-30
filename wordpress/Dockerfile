@@ -7,7 +7,8 @@ COPY . /var/www/html
 # ติดตั้งส่วนเสริมเพิ่มเติมหากจำเป็น
 RUN apt-get update && apt-get install -y \
     vim \
-    curl
+    curl \
+    nano 
 
 # เปิดพอร์ต 80 สำหรับ WordPress
 EXPOSE 80
