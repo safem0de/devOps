@@ -1,0 +1,32 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: airflow-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: airflow-pv
+spec:
+  storageClassName: airflow-storage
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  hostPath:
+    path: "/mnt/data/airflow"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-pvc
+  namespace: apache-airflow-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: airflow-storage

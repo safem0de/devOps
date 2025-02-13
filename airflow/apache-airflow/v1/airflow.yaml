@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow
+  namespace: apache-airflow-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow
+  template:
+    metadata:
+      labels:
+        app: airflow
+    spec:
+      initContainers:
+      - name: airflow-init
+        image: apache/airflow:latest
+        imagePullPolicy: Never
+        command: ["/bin/bash", "-c"]
+        args:
+          - airflow db init &&
+            airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 50000
+        volumeMounts:
+        - name: airflow-storage
+          mountPath: /opt/airflow
+
+      containers:
+      - name: airflow-scheduler
+        image: apache/airflow:latest
+        imagePullPolicy: Never
+        command: ["airflow", "scheduler"]
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 50000
+        volumeMounts:
+        - name: airflow-storage
+          mountPath: /opt/airflow
+
+      - name: airflow-webserver
+        image: apache/airflow:latest
+        imagePullPolicy: Never
+        command: ["airflow", "webserver"]
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 50000
+        volumeMounts:
+        - name: airflow-storage
+          mountPath: /opt/airflow
+
+      - name: airflow-worker
+        image: apache/airflow:latest
+        imagePullPolicy: Never
+        command: ["airflow", "scheduler"]
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 50000
+        volumeMounts:
+        - name: airflow-storage
+          mountPath: /opt/airflow
+
+      volumes:
+      - name: airflow-storage
+        persistentVolumeClaim:
+          claimName: airflow-pvc
+          
