@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydotnetapp
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mydotnetapp
+  template:
+    metadata:
+      labels:
+        app: mydotnetapp
+    spec:
+      containers:
+        - name: mydotnetapp
+          image: 127.0.0.1:32000/mydotnetapp:latest  # ใช้ Private Registry
+          ports:
+            - containerPort: 80  # ถ้าเป็น Web API
+          imagePullPolicy: Always
