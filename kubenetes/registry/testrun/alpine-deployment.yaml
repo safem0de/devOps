@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpine
+  template:
+    metadata:
+      labels:
+        app: alpine
+    spec:
+      containers:
+        - name: alpine
+          image: 127.0.0.1:32000/alpine:latest  # ✅ ใช้ Image จาก Private Registry
+          command: ["sleep", "3600"]  # ✅ ให้ Pod ทำงาน ไม่ Exit ทันที
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: my-registry-secret  # ✅ ใช้ Secret สำหรับ Auth
