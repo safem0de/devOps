@@ -59,7 +59,18 @@ kubectl get pods -n apache-airflow-test
 kubectl logs deployment/airflow -n apache-airflow-test
 ```
 
-### เปิด Web UI ของ Airflow
+## Restart 
+```bash
+kubectl delete pod -n apache-airflow-test --selector=app=airflow
+kubectl apply -f airflow.yaml
+```
+
+## ดู pods 
+```bash
+kubectl exec -it -n apache-airflow-test <pod-name> -c airflow-webserver -- ls
+```
+
+### เปิด Web UI ของ Airflow (no use)
 ```bash
 kubectl port-forward svc/airflow-webserver 8080:8080 -n apache-airflow-test
 ```
