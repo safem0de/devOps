@@ -14,16 +14,40 @@ spec:
         app: airflow
     spec:
       initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ["/bin/sh", "-c", "chown -R 50000:50000 /opt/airflow && chmod -R 775 /opt/airflow"]
+        volumeMounts:
+        - name: airflow-storage
+          mountPath: /opt/airflow
+
+      - name: wait-for-db
+        image: busybox
+        command: ["/bin/sh", "-c", "until nc -z postgres 5432; do echo waiting for db; sleep 2; done;"]
+
+      - name: wait-for-redis
+        image: busybox
+        command: ["/bin/sh", "-c", "until nc -z redis 6379; do echo waiting for redis; sleep 2; done;"]
+
       - name: airflow-init
         image: apache/airflow:latest
         imagePullPolicy: Never
         command: ["/bin/bash", "-c"]
         args:
-          - airflow db init &&
+          - |
+            echo "Waiting for PostgreSQL...";
+            until nc -z postgres 5432; do sleep 2; done;
+            echo "PostgreSQL is ready!";
+            airflow db init &&
             airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com
         securityContext:
           runAsUser: 50000
           runAsGroup: 50000
+        env:
+        - name: AIRFLOW_HOME
+          value: "/opt/airflow"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres/airflow"
         volumeMounts:
         - name: airflow-storage
           mountPath: /opt/airflow
@@ -36,7 +60,15 @@ spec:
         securityContext:
           runAsUser: 50000
           runAsGroup: 50000
+        env:
+        - name: AIRFLOW_HOME
+          value: "/opt/airflow"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres/airflow"
         volumeMounts:
+        - name: airflow-config
+          mountPath: /opt/airflow/airflow.cfg
+          subPath: airflow.cfg
         - name: airflow-storage
           mountPath: /opt/airflow
 
@@ -49,23 +81,56 @@ spec:
         securityContext:
           runAsUser: 50000
           runAsGroup: 50000
+        env:
+        - name: AIRFLOW_HOME
+          value: "/opt/airflow"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres/airflow"
         volumeMounts:
+        - name: airflow-config
+          mountPath: /opt/airflow/airflow.cfg
+          subPath: airflow.cfg
         - name: airflow-storage
           mountPath: /opt/airflow
 
       - name: airflow-worker
         image: apache/airflow:latest
         imagePullPolicy: Never
-        command: ["airflow", "scheduler"]
+        command: ["airflow", "celery", "worker"]
         securityContext:
           runAsUser: 50000
           runAsGroup: 50000
+        env:
+        - name: AIRFLOW_HOME
+          value: "/opt/airflow"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres/airflow"
         volumeMounts:
+        - name: airflow-config
+          mountPath: /opt/airflow/airflow.cfg
+          subPath: airflow.cfg
         - name: airflow-storage
           mountPath: /opt/airflow
 
       volumes:
+      - name: airflow-config
+        configMap:
+          name: airflow-config
       - name: airflow-storage
         persistentVolumeClaim:
           claimName: airflow-pvc
-          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-webserver
+  namespace: apache-airflow-test
+spec:
+  type: NodePort
+  selector:
+    app: airflow
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30081
