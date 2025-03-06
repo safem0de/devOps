@@ -16,7 +16,7 @@ spec:
       initContainers:
       - name: fix-permissions
         image: busybox
-        command: ["/bin/sh", "-c", "chown -R 50000:50000 /opt/airflow && chmod -R 775 /opt/airflow"]
+        command: ["/bin/sh", "-c", "chown -R 50000:50000 /opt/airflow && chmod -R 777 /opt/airflow"]
         volumeMounts:
         - name: airflow-storage
           mountPath: /opt/airflow
@@ -131,8 +131,8 @@ spec:
           - "--dest=."
           - "--one-time=false"
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
+          runAsUser: 50000
+          runAsGroup: 50000
         volumeMounts:
         - name: dags-storage
           mountPath: /git

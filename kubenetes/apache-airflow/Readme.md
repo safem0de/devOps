@@ -10,6 +10,7 @@ kubectl apply -f storage.yaml
 kubectl apply -f postgres.yaml
 kubectl apply -f redis.yaml
 kubectl apply -f airflow.yaml
+kubectl apply -f set_celery.yaml
 ```
 
 ### ตรวจสอบสถานะ
