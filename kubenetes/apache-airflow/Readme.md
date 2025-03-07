@@ -1,7 +1,25 @@
-### ลบของเก่า (ถ้ามี)
+# ลบไม่ช่วยให้ลืม
+### ลบ deployment ของ namespaces
+```bash
+kubectl delete deployment airflow -n apache-airflow-test
+```
+### ลบ namespace ของเก่า (ถ้ามี)
 ```bash
 kubectl delete namespace apache-airflow-test --force --grace-period=0
 ```
+### ลบ pv 
+```bash
+kubectl delete pv airflow-pv -n apache-airflow-test
+```
+### ลบ pvc
+```bash
+kubectl delete pvc airflow-pvc -n apache-airflow-test
+```
+### ลบ StorageClass เดิม
+```bash
+kubectl delete storageclass airflow-storage
+```
+---
 
 ### Apply ไฟล์ทีละไฟล์
 ```bash
@@ -17,11 +35,6 @@ kubectl apply -f set_celery.yaml
 ```bash
 kubectl get pods -n apache-airflow-test
 ```
-
-### ดู log ของ airflow-init
-```bash
-kubectl logs -n apache-airflow-test job/airflow-init
-```
 ### ดู service ของ namespaces
 ```bash
 kubectl get svc -n apache-airflow-test
@@ -31,22 +44,6 @@ kubectl get svc -n apache-airflow-test
 kubectl get pvc airflow-pvc -n apache-airflow-test
 ```
 * ถ้า PVC ยังอยู่ในสถานะ Pending → แสดงว่า Kubernetes ไม่สามารถหา PV ที่ match ได้
-### ลบ deployment ของ namespaces
-```bash
-kubectl delete deployment airflow -n apache-airflow-test
-```
-### ลบ pv 
-```bash
-kubectl delete pv airflow-pv -n apache-airflow-test
-```
-### ลบ pvc
-```bash
-kubectl delete pvc airflow-pvc -n apache-airflow-test
-```
-### ลบ StorageClass เดิม
-```bash
-kubectl delete storageclass airflow-storage
-```
 
 ### เช็คว่า PVC ถูกสร้างและ Bound กับ PV ได้หรือไม่
 ```bash
@@ -60,31 +57,19 @@ kubectl get pods -n apache-airflow-test
 kubectl logs deployment/airflow -n apache-airflow-test
 ```
 
-## Restart 
-```bash
-kubectl delete pod -n apache-airflow-test --selector=app=airflow
-kubectl apply -f airflow.yaml
-```
-
-## ดู pods 
-```bash
-kubectl exec -it -n apache-airflow-test <pod-name> -c airflow-webserver -- ls
-```
-
 ### เปิด Web UI ของ Airflow (no use)
 ```bash
 kubectl port-forward svc/airflow-webserver 8080:8080 -n apache-airflow-test
 ```
 
-### ถ้า Run บน Linux
+### ดู pod/Logs/exec
 ```bash
-sudo mkdir -p /mnt/data/airflow
-sudo chown 50000:50000 /mnt/data/airflow
-sudo chmod 777 /mnt/data/airflow  # หรือใช้สิทธิ์ที่เหมาะสม
-```
-uncomment
-```bash
-securityContext:
-  runAsUser: 50000
-  runAsGroup: 50000
+kubectl get pods -n apache-airflow-test
+## example.
+# NAME                        READY   STATUS    RESTARTS   AGE
+# airflow-697c558454-l7rf2    4/4     Running   0          3m25s
+# postgres-849f7c79df-xp8cg   1/1     Running   0          124m
+# redis-74fb5fd858-bn2kh      1/1     Running   0          124m
+kubectl logs airflow-697c558454-l7rf2 -n apache-airflow-test -c git-sync
+kubectl exec -it -n apache-airflow-test airflow-697c558454-l7rf2 -c airflow-webserver -- ls -al dags # ดู dags
 ```

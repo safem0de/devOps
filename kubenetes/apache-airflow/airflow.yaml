@@ -16,7 +16,7 @@ spec:
       initContainers:
       - name: fix-permissions
         image: busybox
-        command: ["/bin/sh", "-c", "chown -R 50000:50000 /opt/airflow && chmod -R 777 /opt/airflow"]
+        command: ["/bin/sh", "-c", "chown -R 50000:50000 /opt/airflow && chmod -R 777 /opt/airflow && ln -s /git /opt/airflow/dags"]
         volumeMounts:
         - name: airflow-storage
           mountPath: /opt/airflow
@@ -33,7 +33,7 @@ spec:
 
       - name: airflow-init
         image: apache/airflow:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args:
           - |
@@ -57,7 +57,7 @@ spec:
       containers:
       - name: airflow-scheduler
         image: apache/airflow:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["airflow", "scheduler"]
         securityContext:
           runAsUser: 50000
@@ -78,7 +78,7 @@ spec:
 
       - name: airflow-webserver
         image: apache/airflow:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["airflow", "webserver"]
         ports:
         - containerPort: 8080
@@ -101,7 +101,7 @@ spec:
 
       - name: airflow-worker
         image: apache/airflow:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["airflow", "celery", "worker"]
         securityContext:
           runAsUser: 50000
@@ -127,15 +127,19 @@ spec:
           - "--repo=https://github.com/safem0de/test-dags.git"
           - "--branch=main"
           - "--wait=30"
-          - "--root=/git"
-          - "--dest=."
+          - "--root=/opt/airflow/dags" # /git
+          - "--dest=latest"
           - "--one-time=false"
+
+        env: # Not Recommend
+          - name: GIT_SSL_NO_VERIFY
+            value: "true"
         securityContext:
-          runAsUser: 50000
-          runAsGroup: 50000
+          runAsUser: 0 # 0=root, 50000=default
+          runAsGroup: 0
         volumeMounts:
         - name: dags-storage
-          mountPath: /git
+          mountPath: /opt/airflow/dags #/git
 
       volumes:
       - name: airflow-config
