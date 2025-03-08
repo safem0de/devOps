@@ -6,6 +6,7 @@ metadata:
 data:
   airflow.cfg: |
     [core]
+    dags_folder = /opt/airflow/dags/latest
     executor = CeleryExecutor
     sql_alchemy_conn = postgresql+psycopg2://airflow:airflow@postgres/airflow
 
