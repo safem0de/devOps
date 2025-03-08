@@ -73,21 +73,39 @@ kubectl get pods -n apache-airflow-test
 kubectl logs airflow-697c558454-l7rf2 -n apache-airflow-test -c git-sync
 kubectl exec -it -n apache-airflow-test airflow-697c558454-l7rf2 -c airflow-webserver -- ls -al dags # ดู dags
 ```
-
+```bash
 kubectl exec -it -n apache-airflow-test airflow-697c558454-l7rf2 -c airflow-webserver -- ls
-
+```
+---
+### Prometheus + Grafana (Recommended) - kube-prometheus
+ref. https://github.com/prometheus-operator/kube-prometheus/tree/main
+```bash
 git clone https://github.com/prometheus-operator/kube-prometheus.git
 cd kube-prometheus
+```
 
+### ติดตั้ง CRDs, component ทั้งหมด kube-prometheus
+```bash
 kubectl apply --server-side -f manifests/setup
 kubectl wait \
 	--for condition=Established \
 	--all CustomResourceDefinition \
 	--namespace=monitoring
 kubectl apply -f manifests/
-
+```
+### เข้า AirFlow
+```bash
 kubectl port-forward svc/airflow-webserver 8080:8080 -n apache-airflow-test
-
+```
+### เข้า Grafana
+```bash
 kubectl port-forward svc/grafana -n monitoring 3000:3000
-
+```
+เปิด http://localhost:3000
+🔑u: admin
+🔑p: admin (ค่าเริ่มต้น)
+### เข้า Prometheus
+```bash
 kubectl port-forward svc/prometheus-k8s -n monitoring 9090:9090
+```
+เปิด http://localhost:9090
