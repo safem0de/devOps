@@ -62,43 +62,15 @@ kubectl logs deployment/airflow -n apache-airflow-test
 kubectl port-forward svc/airflow-webserver 8080:8080 -n apache-airflow-test
 ```
 
-### ดู pod/Logs/exec
+### ถ้า Run บน Linux
 ```bash
-kubectl get pods -n apache-airflow-test
-## example.
-# NAME                        READY   STATUS    RESTARTS   AGE
-# airflow-697c558454-l7rf2    4/4     Running   0          3m25s
-# postgres-849f7c79df-xp8cg   1/1     Running   0          124m
-# redis-74fb5fd858-bn2kh      1/1     Running   0          124m
-kubectl logs airflow-697c558454-l7rf2 -n apache-airflow-test -c git-sync
-kubectl exec -it -n apache-airflow-test airflow-697c558454-l7rf2 -c airflow-webserver -- ls -al dags # ดู dags
+sudo mkdir -p /mnt/data/airflow
+sudo chown 50000:50000 /mnt/data/airflow
+sudo chmod 777 /mnt/data/airflow  # หรือใช้สิทธิ์ที่เหมาะสม
 ```
-
-### เข้าไปใน container
+uncomment
 ```bash
-kubectl exec -it -n apache-airflow-test airflow-697c558454-l7rf2 -c airflow-webserver -- sh
-```
-## kube-prometheus
-```bash
-
-```
-```bash
-kubectl apply --server-side -f manifests/setup
-kubectl wait \
-	--for condition=Established \
-	--all CustomResourceDefinition \
-	--namespace=monitoring
-kubectl apply -f manifests/
-```
-### Apache-Airflow
-```bash
-kubectl port-forward svc/airflow-webserver 8080:8080 -n apache-airflow-test
-```
-### Grafana
-```bash
-kubectl port-forward svc/grafana -n monitoring 3000:3000
-```
-### Prometheus
-```bash
-kubectl port-forward svc/prometheus-k8s -n monitoring 9090:9090
+securityContext:
+  runAsUser: 50000
+  runAsGroup: 50000
 ```

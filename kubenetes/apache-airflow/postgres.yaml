@@ -39,4 +39,3 @@ spec:
     - protocol: TCP
       port: 5432
       targetPort: 5432
-      nodePort: 30032  # ✅ เปิดให้เข้าผ่านพอร์ต 30032
