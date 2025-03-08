@@ -6,6 +6,7 @@ metadata:
 data:
   airflow.cfg: |
     [core]
+    dags_folder = /opt/airflow/dags/latest
     executor = CeleryExecutor
     sql_alchemy_conn = postgresql+psycopg2://airflow:airflow@postgres/airflow
 
@@ -20,3 +21,4 @@ data:
     worker_concurrency = 4
     [webserver]
     web_server_port = 8080
+    enable_testing = True
