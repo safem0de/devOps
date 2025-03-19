@@ -1,17 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: snipe-entrypoint
+  name: snipeit
   labels:
-    app: snipe
+    app: snipeit
 spec:
+  type: NodePort  # ใช้ NodePort แทน LoadBalancer
   ports:
     - port: 80
+      targetPort: 80
+      nodePort: 30090  # กำหนด NodePort ที่สามารถเข้าถึงได้
   selector:
-    app: snipe
+    app: snipeit
     tier: frontend
-  clusterIP: None
-
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snipeit
+  labels:
+    app: snipeit
+spec:
+  selector:
+    matchLabels:
+      app: snipeit
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: snipeit
+        tier: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000  # ให้ container มีสิทธิ์เขียนไฟล์ลง PVC
+      containers:
+      - name: snipeit
+        image: snipe/snipe-it
+        envFrom:
+          - configMapRef:
+              name: snipe-it-config
+        ports:
+        - containerPort: 80
+          name: snipeit
+        volumeMounts:
+        - name: snipeit-persistent-storage
+          mountPath: /var/lib/snipeit
+      volumes:
+      - name: snipeit-persistent-storage
+        persistentVolumeClaim:
+          claimName: snipeit-pv-claim

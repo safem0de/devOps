@@ -1,0 +1,33 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: snipe-storage
+provisioner: rancher.io/local-path  # ใช้ local-path provisioner
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: snipeit-pv-claim
+  namespace: snipe-it
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: snipe-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: snipedb-pv-claim
+  namespace: snipe-it
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: snipe-storage

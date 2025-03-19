@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snipedb
+  labels:
+    app: snipe
+spec:
+  selector:
+    matchLabels:
+      app: snipe
+      tier: snipedb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: snipe
+        tier: snipedb
+    spec:
+      securityContext:
+        fsGroup: 999  # MariaDB ใช้ UID 999
+      containers:
+      - name: snipedb
+        image: mariadb:latest
+        envFrom:
+          - configMapRef:
+              name: snipe-it-config
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: snipedb-persistent-storage
+          mountPath: /var/lib/mysql
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - |
+                "mariadb-admin ping -h 127.0.0.1 -u$MYSQL_USER -p$MYSQL_PASSWORD"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: snipedb-persistent-storage
+        persistentVolumeClaim:
+          claimName: snipedb-pv-claim
