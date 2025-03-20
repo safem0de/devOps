@@ -19,7 +19,7 @@ nerdctl run -d \
   mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-## Add permission for container (Power Shell Admin)
+## Add permission for container (PowerShell Admin)
 ```bash
 icacls "D:\devOps\sqlserver\sqlserver-data" /setowner Everyone /T /C
 icacls "D:\devOps\sqlserver\sqlserver-data" /grant Everyone:F /T

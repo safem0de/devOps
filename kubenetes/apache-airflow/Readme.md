@@ -30,6 +30,10 @@ kubectl apply -f redis.yaml
 kubectl apply -f airflow.yaml
 kubectl apply -f set_celery.yaml
 ```
+หรือ
+```bash
+kubectl apply -f ./ 
+```
 
 ### ตรวจสอบสถานะ
 ```bash
