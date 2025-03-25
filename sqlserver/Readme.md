@@ -19,10 +19,10 @@ nerdctl run -d \
   mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-## Add permission for container (Power Shell Admin)
+## Get inside (wsl) and create volume
 ```bash
-icacls "D:\devOps\sqlserver\sqlserver-data" /setowner Everyone /T /C
-icacls "D:\devOps\sqlserver\sqlserver-data" /grant Everyone:F /T
+wsl
+nerdctl volume create sqlserver-data
 ```
 
 ## Mount with volume
@@ -30,14 +30,12 @@ icacls "D:\devOps\sqlserver\sqlserver-data" /grant Everyone:F /T
 nerdctl run -d \
   --name sqlserver \
   --restart always \
-  --user root \
   -e "ACCEPT_EULA=Y" \
   -e "SA_PASSWORD=Str0ngP@ss!" \
   -p 1433:1433 \
-  -v "D:\devOps\sqlserver\sqlserver-data:/var/opt/mssql" \
+  -v sqlserver-data:/var/opt/mssql \
   mcr.microsoft.com/mssql/server:2022-latest
 ```
-* ให้ container ทำงานใน mode root เพื่อหลีกเลี่ยงปัญหาสิทธิ์
 
 ## Access Container
 ```bash
