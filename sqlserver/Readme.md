@@ -19,7 +19,7 @@ nerdctl run -d \
   mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-## Get inside (wsl) and create volume
+## Add permission for container (Power Shell Admin)
 ```bash
 wsl
 nerdctl volume create sqlserver-data
