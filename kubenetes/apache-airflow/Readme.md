@@ -6,6 +6,8 @@ kubectl delete deployment airflow -n apache-airflow-test
 ### ลบ namespace ของเก่า (ถ้ามี)
 ```bash
 kubectl delete namespace apache-airflow-test --force --grace-period=0
+or
+kubectl delete pod --all -n apache-airflow-test
 ```
 ### ลบ pv 
 ```bash
@@ -32,6 +34,7 @@ kubectl apply -f set_celery.yaml
 ```
 หรือ
 ```bash
+kubectl apply -f namespace.yaml
 kubectl apply -f ./ 
 ```
 
