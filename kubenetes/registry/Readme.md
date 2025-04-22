@@ -14,7 +14,11 @@ kubectl delete -f registry-service.yaml
 kubectl delete -f storageclass.yaml
 kubectl delete -f local-path-rbac.yaml
 ```
-
+หรือ
+```bash
+kubectl create namespace registry
+kubectl apply -f ./ --namespace=registry
+```
 
 ```bash
 kubectl delete pvc registry-pvc
