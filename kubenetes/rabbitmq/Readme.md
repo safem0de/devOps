@@ -14,6 +14,9 @@ kubectl get svc -n rabbitmq
 
 Test
 ```bash
+npm i
+```
+```bash
 node producer.js
 node consumer.js
 ```
