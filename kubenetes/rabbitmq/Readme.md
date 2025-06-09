@@ -11,3 +11,9 @@ kubectl logs -n rabbitmq -f rabbitmq-946df47f5-trxhp
 ```bash
 kubectl get svc -n rabbitmq
 ```
+
+Test
+```bash
+node producer.js
+node consumer.js
+```
