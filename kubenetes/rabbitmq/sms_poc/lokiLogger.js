@@ -1,3 +1,4 @@
+require("dotenv").config();
 const axios = require('axios');
 
 /**
@@ -15,7 +16,7 @@ async function pushLogToLoki(log) {
   };
 
   try {
-    await axios.post('http://localhost:3100/loki/api/v1/push', payload, {
+    await axios.post(process.env.LOKI_URL, payload, {
       headers: { 'Content-Type': 'application/json' }
     });
     console.log('Sent log to Loki');
