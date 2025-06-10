@@ -1,5 +1,6 @@
 require("dotenv").config();
 const amqp = require("amqplib");
+const { pushLogToLoki } = require('./lokiLogger');
 
 async function consumeMessages() {
   const connection = await amqp.connect(process.env.RABBITMQ_URL);
@@ -21,12 +22,17 @@ async function consumeMessages() {
       if (isSent) {
         console.log(`SMS sent successfully for ID: ${data.id}`);
         channel.ack(msg); // ถ้าสำเร็จ → ack
+
+        await pushLogToLoki(`SMS sent successfully for ID: ${data.id}`);
       } else {
         console.log(
           `SMS failed for ID: ${data.id} → Will not ack, so RabbitMQ will retry.`
         );
         // **ไม่ ack** → RabbitMQ จะ requeue (retry)
         // channel.nack(msg, false, true); // หรือใช้ nack(requeue=true)
+        await pushLogToLoki(
+          `SMS failed for ID: ${data.id} → Will not ack, so RabbitMQ will retry.`
+        );
       }
     }
   });
@@ -39,10 +45,10 @@ async function sendSmsMock(phone, message) {
   await new Promise((r) => setTimeout(r, 1000));
 
   /* จำลองว่า fail ถ้าเบอร์ลงท้ายด้วยเลขคี่ (comment เพื่อให้ Simulation success) */
-  if (parseInt(phone.slice(-1)) % 2 !== 0) {
-    console.log(`Mock SMS FAILED for ${phone}`);
-    return false; // Fail
-  }
+  // if (parseInt(phone.slice(-1)) % 2 !== 0) {
+  //   console.log(`Mock SMS FAILED for ${phone}`);
+  //   return false; // Fail
+  // }
 
   console.log(`Mock SMS SUCCESS for ${phone}`);
   return true; // Success

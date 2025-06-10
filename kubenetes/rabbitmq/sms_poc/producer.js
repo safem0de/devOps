@@ -1,20 +1,6 @@
 require('dotenv').config();
 const amqp = require('amqplib');
-const axios = require('axios');
-
-async function pushLogToLoki(log) {
-  const payload = {
-    streams: [
-      {
-        stream: { job: 'rabbitmq-producer' },
-        values: [[ `${Date.now()}000000`, log ]]
-      }
-    ]
-  };
-  await axios.post('http://localhost:3100/loki/api/v1/push', payload, {
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
+const { pushLogToLoki } = require('./lokiLogger');
 
 async function sendMessages() {
   const connection = await amqp.connect(process.env.RABBITMQ_URL);
@@ -32,8 +18,10 @@ async function sendMessages() {
 
   for (const row of mockData) {
     const msg = JSON.stringify(row);
+    // ส่งไป RabbitMQ
     channel.sendToQueue(queue, Buffer.from(msg), { persistent: true });
     console.log(`Sent: ${msg}`);
+    // ส่ง log เข้า Loki
     await pushLogToLoki(JSON.stringify(row));
   }
 
