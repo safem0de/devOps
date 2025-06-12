@@ -10,4 +10,5 @@ spec:
     - name: http
       port: 3100
       targetPort: 3100
-  type: ClusterIP
+      nodePort: 30310   # เลือก port ที่ต้องการ (30000–32767)
+  type: NodePort

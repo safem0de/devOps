@@ -21,7 +21,7 @@ async function pushLogToLoki(log) {
     });
     console.log('Sent log to Loki');
   } catch (error) {
-    console.error('Error pushing log to Loki:', error.message);
+    console.error('Error pushing log to Loki:', error.response ? error.response.data : error.message);
   }
 }
 
