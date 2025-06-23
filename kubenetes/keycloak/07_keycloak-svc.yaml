@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 32080      # เลือกเบอร์เองได้ระหว่าง 30000-32767
+  selector:
+    app: keycloak
