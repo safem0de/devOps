@@ -3,15 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: Arial, Helvetica, sans-serif;
+  /* หรือใช้ฟอนต์ Tailwind ได้ตามต้องการ */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* --- ลบ @theme ออก! --- */
+
+/* dark mode override */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +20,80 @@
   }
 }
 
+/* Apply variable */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Alert style */
+.login-alert {
+  margin-bottom: 24px;
+  color: #fff;
+  background: #1e293b;
+  padding: 6px 20px;
+  border-radius: 7px;
+}
+@media (prefers-color-scheme: dark) {
+  .login-alert {
+    color: #111;
+    background: #fff;
+  }
+}
+
+.session-box {
+  background: #1e293b;    /* สีพื้นเข้ม (dark) */
+  color: #fff;            /* ตัวหนังสือขาว */
+  padding: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 1rem;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 10px;
+  box-shadow: 0 2px 12px #0002;
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+  border: 1px solid #64748b;
+  position: relative;
+}
+
+/* ตรงข้าม: ถ้า system เป็น dark mode → ให้กล่องเป็นขาว ตัวหนังสือเข้ม */
+@media (prefers-color-scheme: dark) {
+  .session-box {
+    background: #f9fafb;   /* ขาว */
+    color: #111;           /* ตัวหนังสือเข้ม */
+    border: 1px solid #cbd5e1;
+  }
+}
+
+.session-copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  padding: 3px 16px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  background: #f87171;
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.18s;
+  box-shadow: 0 1px 6px #0001;
+}
+
+.session-copy-btn:hover {
+  background: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  .session-copy-btn {
+    background: #0ea5e9;
+    color: #fff;
+  }
+  .session-copy-btn:hover {
+    background: #0284c7;
+  }
 }

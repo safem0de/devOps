@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function LoginPage() {
       alignItems: "center",
       background: "#f1f5f9"
     }}>
-      <h2 style={{ marginBottom: 24 }}>ต้อง login ก่อน</h2>
+      <h2 className="login-alert">ต้อง login ก่อน</h2>
       <button
         onClick={() => signIn("keycloak")}
         style={{

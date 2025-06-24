@@ -2,6 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import SessionBlock from "@/components/SessionBlock";
 
 // Navbar Component
 function Navbar({ username }: { username?: string }) {
@@ -63,6 +64,7 @@ export default function Home() {
       roles = payload?.realm_access?.roles ?? [];
     } catch (e) {
       // ignore
+      console.log(e);
     }
   }
 
@@ -81,17 +83,7 @@ export default function Home() {
           )}
         </ul>
         <h3>ข้อมูล session</h3>
-        <pre
-          style={{
-            background: "#f1f5f9",
-            padding: "12px",
-            borderRadius: "6px",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-all",
-          }}
-        >
-          {JSON.stringify(session, null, 2)}
-        </pre>
+          <SessionBlock session={session} />
       </main>
     </div>
   );
