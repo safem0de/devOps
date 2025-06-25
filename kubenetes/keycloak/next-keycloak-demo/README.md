@@ -29,3 +29,9 @@ npm install next-auth
 ### 8.ครอบ Provider ใน layout
 /app/layout.tsx
 
+
+### Clone this project
+```bash
+npm i
+npm run dev
+```
