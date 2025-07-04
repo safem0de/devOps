@@ -11,6 +11,7 @@ npm install next-auth
 
 ### 3.สร้าง Route Handler สำหรับ Auth
 /app/api/auth/[...nextauth]/route.ts
+create app/types/next-auth.d.ts
 
 ### 4.สร้างหน้า Login / Logout / Homepage
 /app/page.tsx
