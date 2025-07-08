@@ -8,6 +8,8 @@ WSL Setting
 ```bash
 sudo sysctl -w vm.max_map_count=262144
 ```
+user : myuser
+pass : mypassword
 
 สร้าง network shared-db ก่อน
 ```bash
@@ -19,7 +21,6 @@ Join Network
 nerdctl network ls
 ```
 
-สร้าง postgres ใหม่ โดย join network เดียวกับ SonarQube
-```bash
-nerdctl run -d --name postgres-postgres-1 --network exists-pgdb-sonarqube_default -e POSTGRES_USER=sonar -e POSTGRES_PASSWORD=sonar -e POSTGRES_DB=sonarqube -v postgres_data:/var/lib/postgresql/data -p 5432:5432 postgres:14
-```
+SonarQube
+user : admin
+pass : admin
