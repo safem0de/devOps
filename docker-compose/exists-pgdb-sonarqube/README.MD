@@ -1,0 +1,25 @@
+สร้าง Database และ User สำหรับ SonarQube (คลุมแล้ว run ทีละบรรทัด) ก่อนที่จะรัน docker-compose.yml
+```bash
+CREATE DATABASE sonarqube;
+CREATE USER sonar WITH ENCRYPTED PASSWORD 'sonar';
+GRANT ALL PRIVILEGES ON DATABASE sonarqube TO sonar;
+```
+WSL Setting
+```bash
+sudo sysctl -w vm.max_map_count=262144
+```
+
+สร้าง network shared-db ก่อน
+```bash
+nerdctl network create shared-db
+```
+
+Join Network
+```bash
+nerdctl network ls
+```
+
+สร้าง postgres ใหม่ โดย join network เดียวกับ SonarQube
+```bash
+nerdctl run -d --name postgres-postgres-1 --network exists-pgdb-sonarqube_default -e POSTGRES_USER=sonar -e POSTGRES_PASSWORD=sonar -e POSTGRES_DB=sonarqube -v postgres_data:/var/lib/postgresql/data -p 5432:5432 postgres:14
+```

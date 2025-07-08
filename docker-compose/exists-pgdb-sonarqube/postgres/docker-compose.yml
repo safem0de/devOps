@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: medusa
+      POSTGRES_PASSWORD: medusa
+      POSTGRES_DB: medusa-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - shared-db
+
+volumes:
+  pgdata:
+
+networks:
+  shared-db:
+    name: shared-db
+    external: true
