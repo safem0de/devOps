@@ -85,6 +85,11 @@ docker logs gitlab > gitlab_log.txt
 docker logs gitlab | findstr /i "error fail" > gitlab_log.txt
 ```
 
+### re-create docker container
+```bash
+docker compose up -d --force-recreate
+```bsh
+
 ## 0. รันไฟล์กลาง
 Detached Mode
 ```bash
