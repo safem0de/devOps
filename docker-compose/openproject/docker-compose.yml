@@ -1,0 +1,18 @@
+services:
+  openproject:
+    image: openproject/community:13
+    ports:
+      - "8088:80"                               # << กลับมาที่ 80 (Apache) ไม่ใช่ 8080
+    volumes:
+      - pgdata:/var/openproject/pgdata
+      - opdata:/var/openproject/assets
+    environment:
+      SECRET_KEY_BASE: superSecretKeyChangeMe
+      OPENPROJECT_HTTPS: "false"                # ปิด force-HTTPS (สำหรับ dev/test)
+      OPENPROJECT_HOST__NAME: "localhost:8088"  # ช่วยเรื่อง URL & redirects
+      OPENPROJECT_HSTS: "false"                 # กันการส่ง HSTS (ถ้ามี cache เดิมใน browser ให้เคลียร์)
+
+volumes:
+  pgdata:
+  opdata:
+
