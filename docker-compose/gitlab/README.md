@@ -31,3 +31,13 @@ docker ps --format "table {{.Names}}\t{{.Ports}}"
 user: root 
 grep 'Password:' /etc/gitlab/initial_root_password
 ```
+### ภาพรวม CI/CD แบบ DevOps
+```bash
+┌──────────────┐        ┌──────────────┐       ┌────────────────┐       ┌────────────────┐
+│ Developer PC │  git→  │ GitLab Repo  │  CI→  │ GitLab Runner  │  CD→  │ Rancher / K8s  │
+└──────────────┘        └──────────────┘       └────────────────┘       └────────────────┘
+                             ↓ Docker push            ↑ pulls image          deploys app
+                        ┌──────────────────────────────────────────────────────────────┐
+                        │              Docker Registry (harbor/gitlab-registry)        │
+                        └──────────────────────────────────────────────────────────────┘
+```
