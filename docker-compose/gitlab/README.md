@@ -50,7 +50,27 @@ docker compose up -d
 ```bash
 docker exec -it gitlab-runner gitlab-runner register
 ```
-Enter the GitLab instance URL (for example, https://gitlab.com/):
+* Enter the GitLab instance URL (for example, https://gitlab.com/):
 ```bash
 http://host.docker.internal:8929
+```
+* Enter the registration token:
+```bash
+glrt-********************oxCw.01.120v8y2ws # your token
+```
+* Enter a description for the runner: 
+```bash
+docker-runner
+```
+* Enter tags for the runner (comma-separated):
+```bash
+docker
+```
+* Enter executor: 
+```bash
+docker
+```
+* Enter the default Docker image: 
+```bash
+docker:latest
 ```
