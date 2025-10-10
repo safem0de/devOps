@@ -6,3 +6,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/etc/gitlab-runner
+    networks:
+      - gitlab-net
+
+networks:
+  gitlab-net:
+    external: true

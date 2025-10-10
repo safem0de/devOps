@@ -52,7 +52,8 @@ docker exec -it gitlab-runner gitlab-runner register
 ```
 * Enter the GitLab instance URL (for example, https://gitlab.com/):
 ```bash
-http://host.docker.internal:8929
+# http://host.docker.internal:8929
+http://gitlab:8929
 ```
 * Enter the registration token:
 ```bash
@@ -73,4 +74,9 @@ docker
 * Enter the default Docker image: 
 ```bash
 docker:latest
+```
+
+#### Test connect gitlab & gitlab-runner
+```bash
+docker run --rm -it --network gitlab-net busybox ping -c 3 gitlab
 ```
