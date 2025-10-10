@@ -119,3 +119,7 @@ grep "external_url" /etc/gitlab/gitlab.rb
 gitlab-ctl reconfigure
 gitlab-ctl restart
 ```
+10. restart docker
+```bash
+docker restart gitlab
+```
