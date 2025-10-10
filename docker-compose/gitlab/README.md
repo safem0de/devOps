@@ -117,4 +117,5 @@ grep "external_url" /etc/gitlab/gitlab.rb
 9. ใน gitlab container > apply config ใหม่
 ```bash
 gitlab-ctl reconfigure
+gitlab-ctl restart
 ```
