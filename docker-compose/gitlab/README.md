@@ -21,3 +21,8 @@ free -h
                total        used        free      shared  buff/cache   available
 Mem:           5.8Gi       257Mi       5.4Gi       2.0Mi       180Mi       5.3Gi
 Swap:          4.0Gi          0B       4.0Gi
+
+### Check ว่า มีใครใช้ port อะไรบ้าง
+```bash
+docker ps --format "table {{.Names}}\t{{.Ports}}"
+```

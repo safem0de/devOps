@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: localhost
+    environment:
+      GITLAB_SKIP_UNNECESSARY_SERVICES: "true"
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    ports:
+      - "8929:8929"   # HTTP (web UI)
+      - "2224:22"     # SSH access for repos
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+
+    healthcheck:
+      test: ["CMD", "gitlab-ctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
