@@ -26,3 +26,8 @@ Swap:          4.0Gi          0B       4.0Gi
 ```bash
 docker ps --format "table {{.Names}}\t{{.Ports}}"
 ```
+### User/Password
+```bash
+user: root 
+grep 'Password:' /etc/gitlab/initial_root_password
+```
