@@ -3,3 +3,5 @@ devOps.sln
 sqlserver-data
 
 node_modules
+
+docker-compose/gitlab-runner/config/

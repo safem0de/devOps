@@ -41,3 +41,16 @@ grep 'Password:' /etc/gitlab/initial_root_password
                         │              Docker Registry (harbor/gitlab-registry)        │
                         └──────────────────────────────────────────────────────────────┘
 ```
+### Goto Gitlab-runner
+1. run docker compose
+```bash
+docker compose up -d
+```
+2. register gitlab runner
+```bash
+docker exec -it gitlab-runner gitlab-runner register
+```
+Enter the GitLab instance URL (for example, https://gitlab.com/):
+```bash
+http://host.docker.internal:8929
+```
