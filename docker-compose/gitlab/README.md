@@ -80,3 +80,41 @@ docker:latest
 ```bash
 docker run --rm -it --network gitlab-net busybox ping -c 3 gitlab
 ```
+
+#### ตํ้งค่า external_url
+1. เข้าไปใน container GitLab
+```bash
+docker exec -it gitlab bash
+```
+2. เปิดไฟล์ config ของ GitLab
+```bash
+vi /etc/gitlab/gitlab.rb
+```
+3. หาและแก้บรรทัดนี้
+```bash
+# external_url 'GENERATED_EXTERNAL_URL'
+เปลี่ยนเป็น
+external_url 'http://gitlab:8929'
+```
+4. “ค้นหา” ข้อความใน vi / vim 
+- กด / ตามด้วยคำที่อยากหา แล้ว Enter
+```bash
+/external_url
+```
+⏭ ไปยังคำต่อไป: กด n (ตัวเล็ก)
+⏮ กลับไปคำก่อนหน้า: กด N (ตัวใหญ่)
+5. จากนั้นกด i เพื่อ เข้าโหมดแก้ไข (insert mode)
+6. เสร็จแล้วกด: Esc
+7. เพื่อบันทึกและออกจาก vi, พิมพ์:
+```bash
+:wq
+```
+8. ตรวจสอบความถูกต้อง
+```bash
+grep "external_url" /etc/gitlab/gitlab.rb
+```
+ควรเห็นแบบนี้: external_url 'http://gitlab:8929'
+9. ใน gitlab container > apply config ใหม่
+```bash
+gitlab-ctl reconfigure
+```
