@@ -1,3 +1,8 @@
+### สร้าง network
+```bash
+docker network create gitlab-net
+```
+
 ### SET SWAP (VOL-TO-MEMORY)
 ```bash
 notepad "$env:USERPROFILE\.wslconfig"

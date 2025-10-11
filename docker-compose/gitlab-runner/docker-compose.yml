@@ -8,6 +8,9 @@ services:
       - ./config:/etc/gitlab-runner
     networks:
       - gitlab-net
+    extra_hosts:
+      - "gitlab:host-gateway"
 
 networks:
   gitlab-net:
+    external: true

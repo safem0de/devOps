@@ -7,7 +7,7 @@ services:
     environment:
       GITLAB_SKIP_UNNECESSARY_SERVICES: "true"
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab:8929'
+        external_url 'http://localhost:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
 
         ## reduce resource
@@ -37,3 +37,4 @@ volumes:
 
 networks:
   gitlab-net:
+    external: true
