@@ -13,4 +13,5 @@ git commit -m "Initial commit for test-pipeline"
 git remote add origin http://localhost:8929/root/test-pipeline.git
 
 # push ขึ้น branch main
+git branch -M main
 git push -u origin main

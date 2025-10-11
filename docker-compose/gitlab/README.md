@@ -4,7 +4,7 @@ docker network create gitlab-net
 ```
 - check gitlab-net
 ```bash
-docker network create gitlab-net
+docker network inspect gitlab-net   # เห็นทั้ง gitlab และ gitlab-runner
 ```
 - Test connect gitlab & gitlab-runner
 ```bash
@@ -65,8 +65,7 @@ docker exec -it gitlab-runner gitlab-runner register
 ```
 * Enter the GitLab instance URL (for example, https://gitlab.com/):
 ```bash
-# http://host.docker.internal:8929
-http://gitlab:8929
+http://host.docker.internal:8929
 ```
 * Enter the registration token:
 ```bash
