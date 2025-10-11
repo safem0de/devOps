@@ -1,0 +1,10 @@
+stages:
+  - test
+
+test-job:
+  stage: test
+  tags:
+    - docker
+  script:
+    - echo "✅ Runner is working fine!"
+    - uname -a
