@@ -6,7 +6,11 @@ docker network create gitlab-net
 ```bash
 docker network create gitlab-net
 ```
-
+- Test connect gitlab & gitlab-runner
+```bash
+docker run --rm -it --network gitlab-net busybox ping -c 3 gitlab
+```
+---
 ### SET SWAP (VOL-TO-MEMORY)
 ```bash
 notepad "$env:USERPROFILE\.wslconfig"
@@ -30,7 +34,7 @@ free -h
                total        used        free      shared  buff/cache   available
 Mem:           5.8Gi       257Mi       5.4Gi       2.0Mi       180Mi       5.3Gi
 Swap:          4.0Gi          0B       4.0Gi
-
+---
 ### Check ว่า มีใครใช้ port อะไรบ้าง
 ```bash
 docker ps --format "table {{.Names}}\t{{.Ports}}"
@@ -84,13 +88,8 @@ docker
 ```bash
 docker:latest
 ```
-
-#### Test connect gitlab & gitlab-runner
-```bash
-docker run --rm -it --network gitlab-net busybox ping -c 3 gitlab
-```
-
-#### ตํ้งค่า external_url
+---
+#### ตํ้งค่า external_url (optional)
 1. เข้าไปใน container GitLab
 ```bash
 docker exec -it gitlab bash
