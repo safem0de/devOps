@@ -37,4 +37,3 @@ volumes:
 
 networks:
   gitlab-net:
-    external: true

@@ -11,4 +11,3 @@ services:
 
 networks:
   gitlab-net:
-    external: true
