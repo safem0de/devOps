@@ -1,4 +1,8 @@
-### สร้าง network
+### สร้าง network (gitlab-net)
+```bash
+docker network create gitlab-net
+```
+- check gitlab-net
 ```bash
 docker network create gitlab-net
 ```
