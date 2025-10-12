@@ -11,6 +11,11 @@ docker network inspect gitlab-net   # เห็นทั้ง gitlab และ 
 docker run --rm -it --network gitlab-net busybox ping -c 3 gitlab
 ```
 ---
+### ล้าง runner เดิมออก (กัน config เก่ารบกวน)
+```bash
+docker exec -it gitlab-runner gitlab-runner unregister --all-runners
+```
+---
 ### SET SWAP (VOL-TO-MEMORY)
 ```bash
 notepad "$env:USERPROFILE\.wslconfig"

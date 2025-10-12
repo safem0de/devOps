@@ -9,7 +9,7 @@ services:
     networks:
       - gitlab-net
     extra_hosts:
-      # - "gitlab:host-gateway"
+      - "gitlab:host-gateway"
       - "localhost:host-gateway"
 
 networks:
