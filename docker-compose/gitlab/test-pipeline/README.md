@@ -114,3 +114,5 @@ npm test
 ```bash
 npm i -D sonar-scanner
 ```
+### เปิดใช้ GitLab Container Registry
+เข้า GitLab → ไปที่ Project → Deploy → Container Registry

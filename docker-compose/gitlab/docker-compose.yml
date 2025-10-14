@@ -9,6 +9,8 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        registry_external_url 'http://registry.gitlab:5005'
+        gitlab_rails['registry_enabled'] = true
 
         ## reduce resource
         sidekiq['concurrency'] = 2
@@ -16,6 +18,7 @@ services:
     ports:
       - "8929:8929"   # HTTP (web UI)
       - "2224:22"     # SSH access for repos
+      - "5005:5005"
     volumes:
       - gitlab_config:/etc/gitlab
       - gitlab_logs:/var/log/gitlab
