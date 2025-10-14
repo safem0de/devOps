@@ -43,3 +43,7 @@ git push -u origin main
     shm_size = 0
     network_mode = "gitlab-net" # <--- เพิ่มบรรทัดนี้เข้าไป
 ```
+restart after set config
+```bash
+docker restart gitlab-runner
+```

@@ -1,0 +1,27 @@
+stages:
+  - test
+  - code_quality
+  - build
+  - deploy
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm test -- --coverage
+
+code_quality:
+  stage: code_quality
+  script:
+    - sonar-scanner ...
+
+build:
+  stage: build
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+deploy:
+  stage: deploy
+  script:
+    - kubectl apply -f k8s/
