@@ -104,9 +104,13 @@ describe("Page component", () => {
   });
 });
 ```
-ลบ cache ของ Jest (กันมันค้าง config เก่า)
-run
+ลบ cache ของ Jest (กันมันค้าง config เก่า) + run
 ```bash
 npx jest --clearCache
 npm test
+```
+
+### setup Sonar Scanner CLI
+```bash
+npm i -D sonar-scanner
 ```
