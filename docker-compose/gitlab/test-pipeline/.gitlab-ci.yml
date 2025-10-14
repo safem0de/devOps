@@ -1,36 +1,30 @@
-image: node:20
-
 stages:
   - test
   - sonar
 
-variables:
-  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-  GIT_DEPTH: "0"
-
-cache:
-  paths:
-    - .sonar/cache
-
 test-job:
   stage: test
+  image: node:20
   tags:
     - docker
   script:
     - echo "✅ Running Jest tests..."
-    - npm ci
+    - cd nextjs-poc
+    - npm install
     - npm test -- --coverage --coverageReporters=lcov
   artifacts:
     paths:
-      - coverage/
+      - nextjs-poc/coverage/
     expire_in: 1 week
 
 sonarqube-check:
   stage: sonar
+  image: sonarsource/sonar-scanner-cli:latest
   tags:
     - docker
   script:
-    - echo "🚀 Running SonarQube analysis..."
+    - echo "🧠 Running SonarQube analysis..."
+    - cd nextjs-poc
     - npx sonar-scanner \
         -Dsonar.projectKey=test-pipeline-nextjs \
         -Dsonar.sources=src \
