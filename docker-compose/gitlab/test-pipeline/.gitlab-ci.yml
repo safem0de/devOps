@@ -25,10 +25,10 @@ sonarqube-check:
   script:
     - echo "🧠 Running SonarQube analysis..."
     - cd nextjs-poc
-    - npx sonar-scanner \
-        -Dsonar.projectKey=test-pipeline-nextjs \
-        -Dsonar.sources=src \
-        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+    - sonar-scanner 
+        -Dsonar.projectKey=test-pipeline-nextjs 
+        -Dsonar.sources=src 
+        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info 
+        -Dsonar.host.url=$SONAR_HOST_URL 
+        -Dsonar.login=$SONAR_TOKEN 
   allow_failure: true
