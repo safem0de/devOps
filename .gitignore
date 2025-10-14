@@ -5,3 +5,4 @@ sqlserver-data
 node_modules
 
 docker-compose/gitlab-runner/config/
+/node_modules

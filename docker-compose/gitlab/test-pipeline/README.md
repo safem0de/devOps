@@ -10,6 +10,7 @@ npx create-next-app@latest nextjs-poc --typescript --eslint --no-tailwind --app 
 ```bash
 cd nextjs-poc
 npm i -D babel-jest @babel/preset-env @babel/preset-react @babel/preset-typescript
+npm i -D jest jest-environment-jsdom @testing-library/jest-dom @testing-library/react @types/jest
 ```
 babel.config.js
 ```bash
