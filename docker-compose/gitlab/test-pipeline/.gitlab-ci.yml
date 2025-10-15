@@ -40,24 +40,16 @@ build-image:
   image: docker:latest
   services:
     - name: docker:dind
-      entrypoint: ["dockerd-entrypoint.sh"]
-      command:
-        [
-          "--insecure-registry=host.docker.internal:5005",
-          "--host=tcp://0.0.0.0:2375",
-          "--host=unix:///var/run/docker.sock"
-        ]
-      variables:
-        DOCKER_TLS_CERTDIR: ""
-  tags:
-    - docker
+      command: ["--insecure-registry=host.docker.internal:5005"]
   variables:
+    DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
+    CI_COMMIT_SHORT_SHA: "1a2b3c4d"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "root" -p "Inmad123" http://host.docker.internal:5005
-    - docker build -t host.docker.internal:5005/test-pipeline:latest nextjs-poc
-    - docker push host.docker.internal:5005/test-pipeline:latest
+    - docker login -u "root" -p "Inmad123" https://host.docker.internal:5005
+    - docker build -t "host.docker.internal:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
+    - docker push --tls-verify=false "host.docker.internal:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
   only:
     - main
 
