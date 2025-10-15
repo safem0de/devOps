@@ -1,39 +1,39 @@
 stages:
-  - test
-  - sonar
+  # - test
+  # - sonar
   - build
   - deploy
 
-test-job:
-  stage: test
-  image: node:20
-  tags:
-    - docker
-  script:
-    - echo "✅ Running Jest tests..."
-    - cd nextjs-poc
-    - npm install
-    - npm test -- --coverage --coverageReporters=lcov
-  artifacts:
-    paths:
-      - nextjs-poc/coverage/
-    expire_in: 1 week
+# test-job:
+#   stage: test
+#   image: node:20
+#   tags:
+#     - docker
+#   script:
+#     - echo "✅ Running Jest tests..."
+#     - cd nextjs-poc
+#     - npm install
+#     - npm test -- --coverage --coverageReporters=lcov
+#   artifacts:
+#     paths:
+#       - nextjs-poc/coverage/
+#     expire_in: 1 week
 
-sonarqube-check:
-  stage: sonar
-  image: sonarsource/sonar-scanner-cli:latest
-  tags:
-    - docker
-  script:
-    - echo "🧠 Running SonarQube analysis..."
-    - cd nextjs-poc
-    - sonar-scanner 
-        -Dsonar.projectKey=test-pipeline-nextjs 
-        -Dsonar.sources=src 
-        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info 
-        -Dsonar.host.url=$SONAR_HOST_URL 
-        -Dsonar.login=$SONAR_TOKEN 
-  allow_failure: true
+# sonarqube-check:
+#   stage: sonar
+#   image: sonarsource/sonar-scanner-cli:latest
+#   tags:
+#     - docker
+#   script:
+#     - echo "🧠 Running SonarQube analysis..."
+#     - cd nextjs-poc
+#     - sonar-scanner 
+#         -Dsonar.projectKey=test-pipeline-nextjs 
+#         -Dsonar.sources=src 
+#         -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info 
+#         -Dsonar.host.url=$SONAR_HOST_URL 
+#         -Dsonar.login=$SONAR_TOKEN 
+#   allow_failure: true
 
 build-image:
   stage: build

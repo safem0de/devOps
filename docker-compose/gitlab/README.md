@@ -93,6 +93,9 @@ docker
 docker:latest
 ```
 ---
+### Self sign Certificate
+
+---
 #### ตํ้งค่า external_url (optional)
 1. เข้าไปใน container GitLab
 ```bash

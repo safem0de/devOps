@@ -9,8 +9,21 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
-        registry_external_url 'http://registry.gitlab:5005'
+
+        ## Registry (HTTP)
+        registry_external_url 'http://localhost:5005'
         gitlab_rails['registry_enabled'] = true
+
+        registry['enable'] = true
+        registry['host'] = "localhost"
+        registry['port'] = 5005
+        registry['api_url'] = "http://localhost:5005"
+        registry['path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
+
+        ## ปิด SSL ทั้งหมด
+        nginx['redirect_http_to_https'] = false
+        nginx['ssl'] = false
+        registry_nginx['ssl'] = false
 
         ## reduce resource
         sidekiq['concurrency'] = 2
