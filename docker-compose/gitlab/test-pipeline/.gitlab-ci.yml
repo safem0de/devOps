@@ -49,14 +49,11 @@ build-image:
     IMAGE_TAG: "${CI_COMMIT_SHORT_SHA}"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "http://gitlab:5005"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" http://gitlab:5005
     - docker build -t "gitlab:5005/root/test-pipeline:${IMAGE_TAG}" nextjs-poc
     - docker push "gitlab:5005/root/test-pipeline:${IMAGE_TAG}"
   only:
     - main
-  artifacts:
-    name: "docker-image-${CI_COMMIT_SHORT_SHA}"
-    expire_in: 1 week
 
 deploy:
   stage: deploy

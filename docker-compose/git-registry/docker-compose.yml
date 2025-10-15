@@ -1,0 +1,14 @@
+registry:
+    image: registry:2
+    container_name: local-registry
+    restart: always
+    ports:
+      - "5005:5000"
+    volumes:
+      - ./registry-data:/var/lib/registry
+    networks:
+      - gitlab-net
+
+networks:
+  gitlab-net:
+    external: true

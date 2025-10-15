@@ -10,20 +10,24 @@ services:
         external_url 'http://localhost:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2224
 
-        ## Registry (HTTP)
-        registry_external_url 'http://localhost:5005'
-        gitlab_rails['registry_enabled'] = true
+        # ## Registry (HTTP)
+        # registry_external_url 'http://gitlab:5005'
+        # gitlab_rails['registry_enabled'] = true
+        # gitlab_rails['registry_api_url'] = "http://gitlab:5005"
+        # gitlab_rails['gitlab_host'] = "gitlab"
+        # gitlab_rails['gitlab_port'] = 8929
+        # gitlab_rails['gitlab_https'] = false
 
-        registry['enable'] = true
-        registry['host'] = "localhost"
-        registry['port'] = 5005
-        registry['api_url'] = "http://localhost:5005"
-        registry['path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
+        # registry['enable'] = true
+        # registry['host'] = "gitlab"
+        # registry['port'] = 5005
+        # registry['api_url'] = "http://gitlab:5005"
+        # registry['path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
 
-        ## ปิด SSL ทั้งหมด
-        nginx['redirect_http_to_https'] = false
-        nginx['ssl'] = false
-        registry_nginx['ssl'] = false
+        # ## ปิด SSL ทั้งหมด
+        # nginx['redirect_http_to_https'] = false
+        # nginx['ssl'] = false
+        # registry_nginx['ssl'] = false
 
         ## reduce resource
         sidekiq['concurrency'] = 2
