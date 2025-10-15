@@ -40,11 +40,18 @@ build-image:
   image: docker:latest
   services:
     - name: docker:dind
-      command: ["--insecure-registry=host.docker.internal:5005"]
+      entrypoint: ["dockerd-entrypoint.sh"]
+      command:
+        [
+          "--insecure-registry=host.docker.internal:5005",
+          "--host=tcp://0.0.0.0:2375",
+          "--host=unix:///var/run/docker.sock"
+        ]
+      variables:
+        DOCKER_TLS_CERTDIR: ""
   tags:
     - docker
   variables:
-    DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "🔧 Building Docker image..."
