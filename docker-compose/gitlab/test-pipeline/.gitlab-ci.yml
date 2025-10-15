@@ -2,7 +2,7 @@ stages:
   # - test
   # - sonar
   - build
-  - deploy
+  # - deploy
 
 # test-job:
 #   stage: test
@@ -40,33 +40,32 @@ build-image:
   image: docker:latest
   services:
     - name: docker:dind
-      command: ["--insecure-registry=gitlab:5005"]
+      command: ["--insecure-registry=host.docker.internal:5005"]
   tags:
     - docker
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
-    IMAGE_TAG: "${CI_COMMIT_SHORT_SHA}"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" http://gitlab:5005
-    - docker build -t "gitlab:5005/root/test-pipeline:${IMAGE_TAG}" nextjs-poc
-    - docker push "gitlab:5005/root/test-pipeline:${IMAGE_TAG}"
+    - docker login -u "root" -p "Inmad123" http://host.docker.internal:5005
+    - docker build -t host.docker.internal:5005/test-pipeline:latest nextjs-poc
+    - docker push host.docker.internal:5005/test-pipeline:latest
   only:
     - main
 
-deploy:
-  stage: deploy
-  image: alpine:latest
-  tags:
-    - docker
-  script:
-    - echo "🚀 Deploying container..."
-    - apk add --no-cache docker-cli
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab:5005
-    - docker pull "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-    - docker stop nextjs-poc || true
-    - docker rm nextjs-poc || true
-    - docker run -d --name nextjs-poc -p 3333:3333 "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-  only:
-    - main
+# deploy:
+#   stage: deploy
+#   image: alpine:latest
+#   tags:
+#     - docker
+#   script:
+#     - echo "🚀 Deploying container..."
+#     - apk add --no-cache docker-cli
+#     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab:5005
+#     - docker pull "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+#     - docker stop nextjs-poc || true
+#     - docker rm nextjs-poc || true
+#     - docker run -d --name nextjs-poc -p 3333:3333 "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+#   only:
+#     - main
