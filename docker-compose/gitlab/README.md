@@ -92,6 +92,7 @@ docker
 ```bash
 docker:latest
 ```
+docker exec -it gitlab-runner gitlab-runner list
 ---
 ### Self sign Certificate
 

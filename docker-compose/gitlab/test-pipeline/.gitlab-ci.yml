@@ -39,16 +39,19 @@ build-image:
   stage: build
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--insecure-registry=gitlab:5005"]
   tags:
     - docker
   variables:
-    DOCKER_IMAGE: "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    IMAGE_TAG: "${CI_COMMIT_SHORT_SHA}"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab:5005
-    - docker build -t "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
-    - docker push "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "http://gitlab:5005"
+    - docker build -t "gitlab:5005/root/test-pipeline:${IMAGE_TAG}" nextjs-poc
+    - docker push "gitlab:5005/root/test-pipeline:${IMAGE_TAG}"
   only:
     - main
   artifacts:
