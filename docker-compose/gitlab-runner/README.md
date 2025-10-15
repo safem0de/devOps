@@ -35,7 +35,7 @@ git push -u origin main
   [runners.docker]
     tls_verify = false
     image = "docker:latest"
-    privileged = false
+    privileged = false # <--- เปลี่ยนเป็น true
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
