@@ -113,6 +113,11 @@ mkdir -p "/c/ProgramData/Docker/certs.d/host.docker.internal-5005"
 cp domain.crt "/c/ProgramData/Docker/certs.d/host.docker.internal-5005/ca.crt"
 
 openssl x509 -in domain.crt -noout -subject -issuer
+
+certutil -addstore -f "Root" "C:\ProgramData\Docker\certs.d\host.docker.internal-5005\ca.crt"
+
+cat domain.crt | base64 -w0
+CA_CERT_BASE64
 ---
 ### GitLab Variable
 | ตัวแปร                  | ตัวอย่างค่า                            | ใช้ทำอะไร                                   |

@@ -40,16 +40,24 @@ build-image:
   image: docker:latest
   services:
     - name: docker:dind
-      command: ["--insecure-registry=host.docker.internal:5005"]
+      command: ["--insecure-registry=secure-registry:5000"]
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
     CI_COMMIT_SHORT_SHA: "1a2b3c4d"
+  before_script:
+    # สร้างโฟลเดอร์ certs สำหรับ registry
+    - mkdir -p /etc/docker/certs.d/secure-registry:5000
+    # decode cert จาก GitLab variable
+    - echo "$CA_CERT_BASE64" | base64 -d > /etc/docker/certs.d/secure-registry:5000/ca.crt
+    # update certs ใน container
+    - update-ca-certificates || true
+    - echo "✅ Cert installed and trusted"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "root" -p "Inmad123" https://localhost:5005
-    - docker build -t "localhost:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
-    - docker push "localhost:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+    - docker login -u "root" -p "Inmad123" https://secure-registry:5000
+    - docker build -t "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
+    - docker push "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
   only:
     - main
 
