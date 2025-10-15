@@ -95,29 +95,30 @@ docker:latest
 docker exec -it gitlab-runner gitlab-runner list
 ---
 ### Self sign Certificate
+```bash
 cd git-registry/certs
-openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -out domain.crt
-
-Country Name (2 letter code) [AU]: TH
-State or Province Name (full name) [Some-State]: Bangkok
-Locality Name (eg, city) []: Bangkok
-Organization Name (eg, company) []: LocalRegistry
-Organizational Unit Name (eg, section) []: DevOps
-Common Name (e.g. server FQDN or YOUR name) []: host.docker.internal
-Email Address []:
-
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
+  -keyout domain.key -out domain.crt \
+  -config openssl-san.cnf -extensions v3_req
+```
+```bash
 # 1️⃣ สร้างโฟลเดอร์ทั้งหมดให้ครบ
 mkdir -p "/c/ProgramData/Docker/certs.d/host.docker.internal-5005"
 
 # 2️⃣ คัดลอก cert ไปไว้ในนั้น
 cp domain.crt "/c/ProgramData/Docker/certs.d/host.docker.internal-5005/ca.crt"
-
+```
+```bash
 openssl x509 -in domain.crt -noout -subject -issuer
-
+```
+```bash
 certutil -addstore -f "Root" "C:\ProgramData\Docker\certs.d\host.docker.internal-5005\ca.crt"
-
+```
+Add to Gitlab Variable
+```bash
 cat domain.crt | base64 -w0
-CA_CERT_BASE64
+CA_CERT_BASE64 
+```
 ---
 ### GitLab Variable
 | ตัวแปร                  | ตัวอย่างค่า                            | ใช้ทำอะไร                                   |
