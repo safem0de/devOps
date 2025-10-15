@@ -40,6 +40,7 @@ build-image:
   image: docker:latest
   services:
     - name: docker:dind
+      alias: docker
       command: ["--insecure-registry=secure-registry:5000"]
   variables:
     DOCKER_HOST: tcp://docker:2375/
