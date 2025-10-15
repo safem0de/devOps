@@ -47,9 +47,9 @@ build-image:
     CI_COMMIT_SHORT_SHA: "1a2b3c4d"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "root" -p "Inmad123" https://host.docker.internal:5005
-    - docker build -t "host.docker.internal:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
-    - docker push --tls-verify=false "host.docker.internal:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+    - docker login -u "root" -p "Inmad123" https://localhost:5005
+    - docker build -t "localhost:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
+    - docker push "localhost:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
   only:
     - main
 

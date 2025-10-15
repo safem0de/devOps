@@ -107,10 +107,12 @@ Common Name (e.g. server FQDN or YOUR name) []: host.docker.internal
 Email Address []:
 
 # 1️⃣ สร้างโฟลเดอร์ทั้งหมดให้ครบ
-mkdir -p "/c/ProgramData/Docker/certs.d/host.docker.internal:5005"
+mkdir -p "/c/ProgramData/Docker/certs.d/host.docker.internal-5005"
 
 # 2️⃣ คัดลอก cert ไปไว้ในนั้น
-cp domain.crt "/c/ProgramData/Docker/certs.d/host.docker.internal:5005/ca.crt"
+cp domain.crt "/c/ProgramData/Docker/certs.d/host.docker.internal-5005/ca.crt"
+
+openssl x509 -in domain.crt -noout -subject -issuer
 ---
 ### GitLab Variable
 | ตัวแปร                  | ตัวอย่างค่า                            | ใช้ทำอะไร                                   |
