@@ -56,7 +56,8 @@ build-image:
     - echo "✅ Cert installed and trusted"
   script:
     - echo "🔧 Building Docker image..."
-    - docker login -u "root" -p "Inmad123" https://secure-registry:5000
+    # - docker login -u "root" -p "Inmad123" https://secure-registry:5000
+    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin https://secure-registry:5000
     - docker build -t "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
     - docker push "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
   only:
