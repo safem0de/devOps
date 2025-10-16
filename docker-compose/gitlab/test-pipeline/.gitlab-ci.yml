@@ -2,7 +2,7 @@ stages:
   # - test
   # - sonar
   - build
-  # - deploy
+  - deploy
 
 # test-job:
 #   stage: test
@@ -35,6 +35,7 @@ stages:
 #         -Dsonar.login=$SONAR_TOKEN 
 #   allow_failure: true
 
+# ------------------- BUILD STAGE -------------------
 build-image:
   stage: build
   image: docker:latest
@@ -45,7 +46,8 @@ build-image:
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
-    CI_COMMIT_SHORT_SHA: "1a2b3c4d"
+    # CI_COMMIT_SHORT_SHA: "1a2b3c4d"
+    CI_COMMIT_SHORT_SHA: "${CI_COMMIT_SHORT_SHA:-dev}"
   before_script:
     # สร้างโฟลเดอร์ certs สำหรับ registry
     - mkdir -p /etc/docker/certs.d/secure-registry:5000
@@ -62,19 +64,44 @@ build-image:
     - docker push "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
   only:
     - main
+  artifacts:
+    expire_in: 1 day
+    reports:
+      dotenv: build.env
+  after_script:
+    - echo "IMAGE_TAG=${IMAGE_TAG}" >> build.env
 
-# deploy:
-#   stage: deploy
-#   image: alpine:latest
-#   tags:
-#     - docker
-#   script:
-#     - echo "🚀 Deploying container..."
-#     - apk add --no-cache docker-cli
-#     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab:5005
-#     - docker pull "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-#     - docker stop nextjs-poc || true
-#     - docker rm nextjs-poc || true
-#     - docker run -d --name nextjs-poc -p 3333:3333 "registry.gitlab:5005/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-#   only:
-#     - main
+# ------------------- DEPLOY STAGE -------------------
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - name: docker:dind
+      alias: docker
+      command: ["--insecure-registry=secure-registry:5000"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - echo "📜 Installing CA for secure-registry..."
+    - mkdir -p /etc/docker/certs.d/secure-registry:5000
+    - echo "$CA_CERT_BASE64" | base64 -d > /etc/docker/certs.d/secure-registry:5000/ca.crt
+    - update-ca-certificates || true
+    - echo "✅ Cert installed and trusted"
+
+  script:
+    - echo "🚀 Deploying app..."
+    - mkdir -p /tmp/.docker
+    - echo '{"credsStore":""}' > /tmp/.docker/config.json
+    - echo "$REGISTRY_PASSWORD" | docker --config /tmp/.docker login -u "$REGISTRY_USER" --password-stdin https://secure-registry:5000
+    - IMAGE_TAG="secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
+    - docker pull "$IMAGE_TAG"
+    - docker stop nextjs-poc || true
+    - docker rm nextjs-poc || true
+    - docker run -d --name nextjs-poc -p 3333:3333 "$IMAGE_TAG"
+    - rm -rf /tmp/.docker
+    - echo "✅ Deployment successful!"
+  only:
+    - main
+  dependencies:
+    - build-image
