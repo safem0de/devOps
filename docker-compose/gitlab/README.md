@@ -96,7 +96,7 @@ docker exec -it gitlab-runner gitlab-runner list
 ---
 ### Self sign Certificate
 ```bash
-cd git-registry/certs
+cd docker-compose/git-registry/certs
 openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
   -keyout domain.key -out domain.crt \
   -config openssl-san.cnf -extensions v3_req
@@ -109,13 +109,40 @@ mkdir -p "/c/ProgramData/Docker/certs.d/host.docker.internal-5005"
 cp domain.crt "/c/ProgramData/Docker/certs.d/host.docker.internal-5005/ca.crt"
 ```
 ```bash
-openssl x509 -in domain.crt -noout -subject -issuer
+openssl x509 -in domain.crt -noout -subject -issuer -ext subjectAltName
 ```
+result:
+```bash
+openssl x509 -in domain.crt -noout -subject -issuer -ext subjectAltName
+subject=C=TH, ST=Bangkok, L=Bangkok, O=LocalRegistry, OU=DevOps, CN=host.docker.internal
+issuer=C=TH, ST=Bangkok, L=Bangkok, O=LocalRegistry, OU=DevOps, CN=host.docker.internal
+X509v3 Subject Alternative Name:
+    DNS:host.docker.internal, DNS:secure-registry, DNS:localhost, IP Address:127.0.0.1
+```
+เพิ่ม Cert เข้าระบบ Windows trust store (Powershell Administrator)
 ```bash
 certutil -addstore -f "Root" "C:\ProgramData\Docker\certs.d\host.docker.internal-5005\ca.crt"
 ```
-Add to Gitlab Variable
+result:
 ```bash
+Root "Trusted Root Certification Authorities"
+Signature matches Public Key
+Certificate "host.docker.internal" added to store.
+CertUtil: -addstore command completed successfully.
+```
+ติดตั้ง cert ใน container (เช่น gitlab-runner)
+```bash
+docker exec -it gitlab-runner sh -c "mkdir -p /usr/local/share/ca-certificates/extra"
+docker cp domain.crt gitlab-runner:/usr/local/share/ca-certificates/extra/secure-registry.crt
+docker exec -it gitlab-runner sh -c "update-ca-certificates"
+```
+```bash
+docker exec -it gitlab-runner curl -v https://secure-registry:5000/v2/
+curl -k https://localhost:5005/v2/
+```
+Add to Gitlab Variable (for ci)
+```bash
+cd docker-compose\git-registry\certs
 cat domain.crt | base64 -w0
 CA_CERT_BASE64 
 ```
