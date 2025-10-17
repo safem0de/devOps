@@ -138,7 +138,7 @@ deploy:
 * `docker rm -f nextjs-poc || true` ลบของเก่า (ไม่พังต่อให้ไม่เจอ)
 * รัน container ใหม่: map พอร์ต `3333:3000` (Next.js ปกติ listen 3000)
 * แสดง `docker ps` ไว้เช็กง่าย ๆ
-
+---
 ### สิ่งที่ “ต้องมี” ใน runner/host เพื่อให้ pipeline นี้ทำงานจริง
 1. Runner config
     * ใช้ executor `docker`
@@ -163,6 +163,6 @@ deploy:
 * ถ้า image ของคุณ expose 3333 (หรือปรับ `npm start` ให้ฟังพอร์ต 3333) ให้แก้บรรทัดรันเป็น `-p 3333:3333`
 * ตอนนี้ config สมมติว่า Next.js listen `3000` (ค่าดีฟอลต์) เลย map `3333:3000` — ปรับตาม Dockerfile/command จริงได้เลย
 
-TL;DR
+### TL;DR
 * แนวทาง: ใช้ host Docker daemon → ง่าย/เร็ว, จัดการ CA self-signed ถูกตำแหน่ง, ดึง `IMAGE_TAG` ข้าม stage ด้วย dotenv, และ build context auto-detect
 * จุดที่ต้องเช็กนอกไฟล์: runner ต้อง mount `/var/run/docker.sock` และ host ต้อง trust CA ของ registry (รวมทั้งกรณี Windows)
