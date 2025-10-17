@@ -1,5 +1,5 @@
 ## Documents
-Setup project ➜ [Setup Project](docs/poc_setup.md)<br/>
+Setup Project ➜ [Setup Project](docs/poc_setup.md)<br/>
 Explain CI ➜ [Explain CI](docs/explain_ci.md)<br/>
 
 ## Trip & Trick (README)
