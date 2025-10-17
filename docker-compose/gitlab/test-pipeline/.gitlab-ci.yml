@@ -1,107 +1,90 @@
 stages:
-  # - test
-  # - sonar
   - build
   - deploy
 
-# test-job:
-#   stage: test
-#   image: node:20
-#   tags:
-#     - docker
-#   script:
-#     - echo "✅ Running Jest tests..."
-#     - cd nextjs-poc
-#     - npm install
-#     - npm test -- --coverage --coverageReporters=lcov
-#   artifacts:
-#     paths:
-#       - nextjs-poc/coverage/
-#     expire_in: 1 week
+# Shared defaults
+variables:
+  REGISTRY_ADDR: host.docker.internal:5005
+  DOCKER_HOST: unix:///var/run/docker.sock
+  PROJECT_SUBDIR: docker-compose/gitlab/test-pipeline
+  CONTEXT_PATH: ${PROJECT_SUBDIR}/nextjs-poc
 
-# sonarqube-check:
-#   stage: sonar
-#   image: sonarsource/sonar-scanner-cli:latest
-#   tags:
-#     - docker
-#   script:
-#     - echo "🧠 Running SonarQube analysis..."
-#     - cd nextjs-poc
-#     - sonar-scanner 
-#         -Dsonar.projectKey=test-pipeline-nextjs 
-#         -Dsonar.sources=src 
-#         -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info 
-#         -Dsonar.host.url=$SONAR_HOST_URL 
-#         -Dsonar.login=$SONAR_TOKEN 
-#   allow_failure: true
+.docker_job:
+  image: docker:stable
+  tags:
+    - docker
+  before_script:
+    - set -eux
+    # Trust self-signed registry CA if provided
+    - |
+      if [ -n "${CA_CERT_BASE64:-}" ]; then \
+        mkdir -p "/etc/docker/certs.d/${REGISTRY_ADDR}"; \
+        echo "$CA_CERT_BASE64" | base64 -d > "/etc/docker/certs.d/${REGISTRY_ADDR}/ca.crt"; \
+      else \
+        echo "CA_CERT_BASE64 not set; skipping CA install"; \
+      fi
+    - docker version || true
+    - docker info || true
 
-# ------------------- BUILD STAGE -------------------
+# -------- BUILD --------
 build-image:
   stage: build
-  image: docker:latest
-  services:
-    - name: docker:dind
-      alias: docker
-      command: ["--insecure-registry=secure-registry:5000"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-    # CI_COMMIT_SHORT_SHA: "1a2b3c4d"
-    CI_COMMIT_SHORT_SHA: "${CI_COMMIT_SHORT_SHA:-dev}"
-  before_script:
-    # สร้างโฟลเดอร์ certs สำหรับ registry
-    - mkdir -p /etc/docker/certs.d/secure-registry:5000
-    # decode cert จาก GitLab variable
-    - echo "$CA_CERT_BASE64" | base64 -d > /etc/docker/certs.d/secure-registry:5000/ca.crt
-    # update certs ใน container
-    - update-ca-certificates || true
-    - echo "✅ Cert installed and trusted"
+  extends: .docker_job
   script:
-    - echo "🔧 Building Docker image..."
-    # - docker login -u "root" -p "Inmad123" https://secure-registry:5000
-    - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin https://secure-registry:5000
-    - docker build -t "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}" nextjs-poc
-    - docker push "secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-  only:
-    - main
+    - |
+      IMAGE_TAG="${REGISTRY_ADDR}/root/test-pipeline:${CI_COMMIT_SHORT_SHA:-dev}"
+      echo "IMAGE_TAG=${IMAGE_TAG}" > build.env
+      echo "Using tag: ${IMAGE_TAG}"
+
+      echo "Login to registry"
+      : "${REGISTRY_USER:?Set REGISTRY_USER in CI variables}"
+      : "${REGISTRY_PASSWORD:?Set REGISTRY_PASSWORD in CI variables}"
+      echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin "https://${REGISTRY_ADDR}"
+
+      # Resolve build context for both monorepo and subproject cases
+      CTX=""
+      for c in "${CONTEXT_PATH}" "nextjs-poc" "."; do
+        if [ -d "$c" ] && [ -f "$c/Dockerfile" ]; then CTX="$c"; break; fi
+      done
+      [ -n "${CTX}" ] || { echo "No valid build context found (tried ${CONTEXT_PATH}, nextjs-poc, .)"; ls -la; exit 1; }
+      echo "Build image from ${CTX}"
+      docker build -t "${IMAGE_TAG}" "${CTX}"
+
+      echo "Push image"
+      docker push "${IMAGE_TAG}"
   artifacts:
     expire_in: 1 day
     reports:
       dotenv: build.env
-  after_script:
-    - echo "IMAGE_TAG=${IMAGE_TAG}" >> build.env
-
-# ------------------- DEPLOY STAGE -------------------
-deploy:
-  stage: deploy
-  image: docker:latest
-  services:
-    - name: docker:dind
-      alias: docker
-      command: ["--insecure-registry=secure-registry:5000"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - echo "📜 Installing CA for secure-registry..."
-    - mkdir -p /etc/docker/certs.d/secure-registry:5000
-    - echo "$CA_CERT_BASE64" | base64 -d > /etc/docker/certs.d/secure-registry:5000/ca.crt
-    - update-ca-certificates || true
-    - echo "✅ Cert installed and trusted"
-
-  script:
-    - echo "🚀 Deploying app..."
-    - mkdir -p /tmp/.docker
-    - echo '{"credsStore":""}' > /tmp/.docker/config.json
-    - echo "$REGISTRY_PASSWORD" | docker --config /tmp/.docker login -u "$REGISTRY_USER" --password-stdin https://secure-registry:5000
-    - IMAGE_TAG="secure-registry:5000/root/test-pipeline:${CI_COMMIT_SHORT_SHA}"
-    - docker pull "$IMAGE_TAG"
-    - docker stop nextjs-poc || true
-    - docker rm nextjs-poc || true
-    - docker run -d --name nextjs-poc -p 3333:3333 "$IMAGE_TAG"
-    - rm -rf /tmp/.docker
-    - echo "✅ Deployment successful!"
+    paths:
+      - build.env
   only:
     - main
+
+# -------- DEPLOY --------
+deploy:
+  stage: deploy
+  extends: .docker_job
   dependencies:
     - build-image
+  script:
+    - |
+      echo "IMAGE_TAG from artifacts: ${IMAGE_TAG:-<empty>}"
+      [ -n "${IMAGE_TAG:-}" ] || { echo "IMAGE_TAG is empty"; exit 1; }
+
+      echo "Login to registry"
+      echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin "https://${REGISTRY_ADDR}"
+
+      echo "Pull ${IMAGE_TAG}"
+      docker pull "${IMAGE_TAG}"
+
+      echo "Restart container"
+      docker rm -f nextjs-poc || true
+      # Next.js defaults to 3000; map host 3333 -> container 3000
+      docker run -d --name nextjs-poc -p 3333:3000 "${IMAGE_TAG}"
+
+      sleep 3
+      docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+      echo "Deployment done"
+  only:
+    - main

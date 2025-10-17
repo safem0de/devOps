@@ -28,7 +28,7 @@ git push -u origin main
 ```bash
 [[runners]]
   name = "docker-runner"
-  url = "http://gitlab:8929/" # URL สำหรับ register ยังคงใช้ gitlab
+  url = "http://host.docker.internal:8929"
   token = "xxxxxxxxxxxx"
   executor = "docker"
   clone_url = "http://gitlab:8929" # <--- เพิ่มบรรทัดนี้เข้าไป
@@ -39,7 +39,7 @@ git push -u origin main
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
-    volumes = ["/cache"]
+    volumes = ["/cache"] # <--- เพิ่ม "/var/run/docker.sock:/var/run/docker.sock",
     shm_size = 0
     network_mode = "gitlab-net" # <--- เพิ่มบรรทัดนี้เข้าไป
 ```
