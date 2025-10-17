@@ -1,6 +1,6 @@
 ## Documents
 Setup project ➜ [Setup Project](docs/poc_setup.md)<br/>
-อธิบาย CI ➜ [Explain CI](docs/explain_ci.md)
+Explain CI ➜ [Explain CI](docs/explain_ci.md)<br/>
 
 ## Trip & Trick (README)
 * สร้างโฟลเดอร์ docs/ แล้วใส่ไฟล์ Markdown / AsciiDoc ข้างใน เช่น:
