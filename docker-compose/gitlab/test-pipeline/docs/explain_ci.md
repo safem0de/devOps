@@ -133,48 +133,36 @@ deploy:
 
 * `dependencies: [build-image]` + `reports: dotenv` 
 จาก build → `IMAGE_TAG` จะถูก inject เป็น env var โดยอัตโนมัติใน stage นี้
-* ตรวจว่ามี IMAGE_TAG จริง (กันกรณี artifacts ไม่มา)
-* login อีกครั้ง (แยก stage = คนละ container, คนละ $HOME, ต้อง login ใหม่)
-* docker rm -f nextjs-poc || true ลบของเก่า (ไม่พังต่อให้ไม่เจอ)
-* รัน container ใหม่: map พอร์ต 3333:3000 (Next.js ปกติ listen 3000)
-* แสดง docker ps ไว้เช็กง่าย ๆ
+* ตรวจว่ามี `IMAGE_TAG` จริง (กันกรณี artifacts ไม่มา)
+* login อีกครั้ง (แยก stage = คนละ container, คนละ `$HOME`, ต้อง login ใหม่)
+* `docker rm -f nextjs-poc || true` ลบของเก่า (ไม่พังต่อให้ไม่เจอ)
+* รัน container ใหม่: map พอร์ต `3333:3000` (Next.js ปกติ listen 3000)
+* แสดง `docker ps` ไว้เช็กง่าย ๆ
 
 ### สิ่งที่ “ต้องมี” ใน runner/host เพื่อให้ pipeline นี้ทำงานจริง
+1. Runner config
+    * ใช้ executor `docker`
+    * เปิด `privileged = true` (ถ้าจะใช้ dind) หรือ mount socket ของ host แทน 
+    (เลือกแบบ mount socket แล้วในไฟล์นี้)
+    * มี volume: `/var/run/docker.sock:/var/run/docker.sock`
+2. บน Host
+    * Docker daemon กำลังรัน (เพราะเราใช้ `DOCKER_HOST=unix:///var/run/docker.sock`)
+    * ถ้าใช้ self-signed registry: เครื่อง host ต้องเชื่อถือ CA ด้วย 
+    (Windows: วางไฟล์ไว้ที่ `C:\ProgramData\Docker\certs.d\host.docker.internal:5005\ca.crt` 
+    และ restart Docker Desktop / Linux: `/etc/docker/certs.d/...`)
+3. CI variables
+    * `REGISTRY_USER`, `REGISTRY_PASSWORD` (ของ registry นี้)
+    * `CA_CERT_BASE64` (optional แต่แนะนำ ถ้า registry เป็น self-signed)
 
-Runner config
+### ทำไมใช้ host.docker.internal:5005 แทน secure-registry:5000?
+* เพราะในแนวทางนี้ job container คุยกับ host (ผ่าน socket) อยู่แล้ว → login/push ไปยัง registry ผ่าน host-published port ตรง ๆ ชื่อ DNS `host.docker.internal` ใช้ได้ใน Linux Docker Desktop/Windows
+* ลดปัญหาการต้องเอา job เข้า network เดียวกับ service registry และช่วยให้ cert path 
+(`/etc/docker/certs.d/<host:port>`) สอดคล้องกับ endpoint ที่ login ได้แน่นอน
 
-ใช้ executor docker
+### กับ Next.js
+* ถ้า image ของคุณ expose 3333 (หรือปรับ `npm start` ให้ฟังพอร์ต 3333) ให้แก้บรรทัดรันเป็น `-p 3333:3333`
+* ตอนนี้ config สมมติว่า Next.js listen `3000` (ค่าดีฟอลต์) เลย map `3333:3000` — ปรับตาม Dockerfile/command จริงได้เลย
 
-เปิด privileged = true (ถ้าจะใช้ dind) หรือ mount socket ของ host แทน (เราเลือกแบบ mount socket แล้วในไฟล์นี้)
-
-มี volume: /var/run/docker.sock:/var/run/docker.sock
-
-บน Host
-
-Docker daemon กำลังรัน (เพราะเราใช้ DOCKER_HOST=unix:///var/run/docker.sock)
-
-ถ้าใช้ self-signed registry: เครื่อง host ต้องเชื่อถือ CA ด้วย (Windows: วางไฟล์ไว้ที่ C:\ProgramData\Docker\certs.d\host.docker.internal:5005\ca.crt และ restart Docker Desktop / Linux: /etc/docker/certs.d/...)
-
-CI variables
-
-REGISTRY_USER, REGISTRY_PASSWORD (ของ registry นี้)
-
-CA_CERT_BASE64 (optional แต่แนะนำ ถ้า registry เป็น self-signed)
-
-ทำไมผมใช้ host.docker.internal:5005 แทน secure-registry:5000?
-
-เพราะในแนวทางนี้ job container คุยกับ host (ผ่าน socket) อยู่แล้ว → login/push ไปยัง registry ผ่าน host-published port ตรง ๆ ชื่อ DNS host.docker.internal ใช้ได้ใน Linux Docker Desktop/Windows
-
-ลดปัญหาการต้องเอา job เข้า network เดียวกับ service registry และช่วยให้ cert path (/etc/docker/certs.d/<host:port>) สอดคล้องกับ endpoint ที่ login ได้แน่นอน
-
-กับ Next.js
-
-ถ้า image ของคุณ expose 3333 (หรือปรับ npm start ให้ฟังพอร์ต 3333) ให้แก้บรรทัดรันเป็น -p 3333:3333
-
-ตอนนี้ config สมมติว่า Next.js listen 3000 (ค่าดีฟอลต์) เลย map 3333:3000 — ปรับตาม Dockerfile/command จริงของคุณได้เลย
-
-สรุปสั้น ๆ
-
-โครงนี้ “ดี” ในแง่แนวทาง: ใช้ host Docker daemon → ง่าย/เร็ว, จัดการ CA self-signed ถูกตำแหน่ง, ดึง IMAGE_TAG ข้าม stage ด้วย dotenv, และ build context auto-detect
-
-จุดที่ต้องเช็กนอกไฟล์: runner ต้อง mount /var/run/docker.sock และ host ต้อง trust CA ของ registry (รวมทั้งกรณี Windows)
+TL;DR
+* แนวทาง: ใช้ host Docker daemon → ง่าย/เร็ว, จัดการ CA self-signed ถูกตำแหน่ง, ดึง `IMAGE_TAG` ข้าม stage ด้วย dotenv, และ build context auto-detect
+* จุดที่ต้องเช็กนอกไฟล์: runner ต้อง mount `/var/run/docker.sock` และ host ต้อง trust CA ของ registry (รวมทั้งกรณี Windows)
