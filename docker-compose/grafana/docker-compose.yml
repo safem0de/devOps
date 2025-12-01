@@ -1,0 +1,10 @@
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3032:3000"   # grafana UI
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  grafana-data:
