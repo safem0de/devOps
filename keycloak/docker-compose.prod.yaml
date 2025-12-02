@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   keycloak-db:
@@ -17,7 +16,12 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     container_name: keycloak
-    command: start-dev --http-port=8080
+    command:
+      - start-dev
+      - --hostname=ods-auth.safemode.live
+      - --proxy-headers=xforwarded
+      - --hostname-strict=false
+      - --hostname-strict-https=false
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
@@ -25,9 +29,6 @@ services:
       KC_DB_PASSWORD: keycloakpassword
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: adminpassword
-      # บังคับให้ Keycloak ใช้ localhost URL แม้เข้าผ่าน DevTunnel
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 8080
     ports:
       - "8080:8080"
     depends_on:
