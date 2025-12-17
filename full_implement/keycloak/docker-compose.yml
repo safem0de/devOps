@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloakpassword
+      TZ: Asia/Bangkok
+    volumes:
+      - kc-pg:/var/lib/postgresql/data
+    networks:
+      - proxy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: keycloak
+    restart: unless-stopped
+
+    # ✅ สำคัญ: ต้องสั่ง start ไม่งั้นมันจะโชว์ help แล้ว exit วน restart
+    command: ["start", "--proxy=edge", "--http-enabled=true"]
+
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-postgres
+      KC_DB_URL_PORT: "5432"
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloakpassword
+
+      KC_PROXY_HEADERS: xforwarded
+      KC_HOSTNAME: keycloak.borneothai.com
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpassword
+
+      TZ: Asia/Bangkok
+
+    depends_on:
+      - postgres
+    networks:
+      - proxy
+
+volumes:
+  kc-pg:
+
+networks:
+  proxy:
+    external: true

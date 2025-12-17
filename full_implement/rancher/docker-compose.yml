@@ -1,0 +1,19 @@
+services:
+  rancher:
+    image: rancher/rancher:v2.8.5
+    container_name: rancher
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - rancher-data:/var/lib/rancher
+    environment:
+      - TZ=Asia/Bangkok
+    networks:
+      - proxy
+
+volumes:
+  rancher-data:
+
+networks:
+  proxy:
+    external: true
