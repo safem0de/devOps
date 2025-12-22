@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: n8n
+      POSTGRES_DB: n8n
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+
+  n8n-main:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: n8n
+
+      EXECUTIONS_MODE: queue
+      QUEUE_BULL_REDIS_HOST: redis
+
+      # พวกนี้ใส่ตามจริงของคุณ
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  n8n-worker:
+    image: n8nio/n8n:latest
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: n8n
+
+      EXECUTIONS_MODE: queue
+      QUEUE_BULL_REDIS_HOST: redis
+
+      # บอกให้คอนเทนเนอร์นี้เป็น worker
+      N8N_WORKER: "true"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  pgdata:
+  redisdata:
+  n8n_data:
