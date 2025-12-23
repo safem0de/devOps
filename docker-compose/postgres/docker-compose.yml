@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: safe
+      POSTGRES_PASSWORD: safe
+      POSTGRES_DB: safe-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - shared-db
+
+volumes:
+  pgdata:
+
+networks:
+  shared-db:
+    name: shared-db
+    external: true
