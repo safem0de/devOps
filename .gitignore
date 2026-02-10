@@ -9,3 +9,5 @@ docker-compose/gitlab-runner/config/
 
 # docker registry data (don’t commit)
 docker-compose/git-registry/registry-data/
+
+/logs

@@ -40,6 +40,10 @@ docker-compose logs -f loki
 docker-compose logs -f frontend
 docker-compose logs -f backend
 ```
+# ดู status
+```bash
+docker compose ps
+```
 
 ### Frontend Logs
 ```bash
