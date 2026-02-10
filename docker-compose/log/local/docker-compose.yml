@@ -1,0 +1,62 @@
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  loki-data:
+  grafana-data:
+
+services:
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  promtail-frontend:
+    image: grafana/promtail:2.9.0
+    container_name: promtail-frontend
+    volumes:
+      - ./promtail/promtail-frontend.yml:/etc/promtail/config.yml
+      - /d/Safem0de/devOps/logs/frontend:/logs/frontend:ro # ← Mount local logs
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  promtail-backend:
+    image: grafana/promtail:2.9.0
+    container_name: promtail-backend
+    volumes:
+      - ./promtail/promtail-backend.yml:/etc/promtail/config.yml
+      - /d/Safem0de/devOps/logs/backend:/logs/backend:ro # ← Mount local logs
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - loki

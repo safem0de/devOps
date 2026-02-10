@@ -1,0 +1,127 @@
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  loki-data:
+  grafana-data:
+  postgres-data:
+
+services:
+  # ========== Monitoring Stack ==========
+  
+  # Grafana - Dashboard
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ========== Application Stack ==========
+
+  # Angular Frontend + Promtail
+  frontend:
+    build:
+      context: ./frontend-test-scenario
+      dockerfile: Dockerfile
+    container_name: angular-app
+    ports:
+      - "4200:80"
+    volumes:
+      - /var/log/angular:/var/log/nginx  # Share logs with Promtail
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # Promtail for Frontend
+  promtail-frontend:
+    image: grafana/promtail:2.9.0
+    container_name: promtail-frontend
+    volumes:
+      - ./promtail/promtail-frontend.yml:/etc/promtail/config.yml
+      - /var/log/angular:/var/log/nginx:ro  # Read-only access to logs
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+      - frontend
+
+  # C# Backend + Promtail
+  backend:
+    build:
+      context: ./backend-test-scenario
+      dockerfile: Dockerfile
+    container_name: aspnet-api
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=testscenario;Username=postgres;Password=postgres123
+    volumes:
+      - /var/log/aspnet:/app/logs  # Share logs with Promtail
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  # Promtail for Backend
+  promtail-backend:
+    image: grafana/promtail:2.9.0
+    container_name: promtail-backend
+    volumes:
+      - ./promtail/promtail-backend.yml:/etc/promtail/config.yml
+      - /var/log/aspnet:/app/logs:ro  # Read-only access to logs
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+      - backend
+
+  # ========== Database ==========
+
+  # # PostgreSQL
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: postgres-db
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres123
+  #     - POSTGRES_DB=testscenario
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
